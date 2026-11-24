@@ -14,6 +14,7 @@ import type {
   RoleKey,
   SimulateResponse,
   SyncPatchResponse,
+  ZeroDayRadarResponse,
 } from '../types/api';
 
 const API_BASE = (
@@ -74,6 +75,23 @@ export const api = {
     request<PatchDiffsResponse>(
       `/patches/${encodeURIComponent(version)}/diffs${lang ? `?lang=${encodeURIComponent(lang)}` : ''}`
     ),
+
+  getZeroDayRadar: (params?: {
+    to_version?: string | null;
+    target_profile?: 'squishy' | 'bruiser' | 'tank';
+    game_map?: MapKey;
+    limit?: number;
+    lang?: string;
+  }) => {
+    const query = new URLSearchParams();
+    if (params?.to_version) query.set('to_version', params.to_version);
+    if (params?.target_profile) query.set('target_profile', params.target_profile);
+    if (params?.game_map) query.set('game_map', params.game_map);
+    if (params?.limit) query.set('limit', String(params.limit));
+    if (params?.lang) query.set('lang', params.lang);
+    const qs = query.toString();
+    return request<ZeroDayRadarResponse>(`/patches/zero-day-radar${qs ? `?${qs}` : ''}`);
+  },
 
   recommendBuilds: (payload: {
     champion_key: string;

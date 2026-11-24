@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { Activity, Brain, CloudDownload, FileText, Loader2, Swords } from 'lucide-react';
+import { Activity, Brain, CloudDownload, FileText, Loader2, Sparkles, Swords } from 'lucide-react';
 import { api } from './services/api';
 import { useLanguage } from './i18n/LanguageContext';
 import type {
@@ -20,17 +20,24 @@ import type {
   SimulateResponse,
 } from './types/api';
 import { AIBuildLab } from './components/AIBuildLab';
-import { AutoPatchPanel } from './components/AutoPatchPanel';
-import { PatchInputPanel } from './components/PatchInputPanel';
 import { DiffCardList } from './components/DiffCardList';
 import { SimulationControls } from './components/SimulationControls';
 import { LanguageSelector } from './components/LanguageSelector';
 
+const ZeroDayRadarPanel = lazy(() =>
+  import('./components/ZeroDayRadarPanel').then((m) => ({ default: m.ZeroDayRadarPanel }))
+);
+const AutoPatchPanel = lazy(() =>
+  import('./components/AutoPatchPanel').then((m) => ({ default: m.AutoPatchPanel }))
+);
+const PatchInputPanel = lazy(() =>
+  import('./components/PatchInputPanel').then((m) => ({ default: m.PatchInputPanel }))
+);
 const SimulationCharts = lazy(() =>
   import('./components/SimulationCharts').then((m) => ({ default: m.SimulationCharts }))
 );
 
-type SourceMode = 'ai-lab' | 'auto' | 'manual';
+type SourceMode = 'ai-lab' | 'zero-day' | 'auto' | 'manual';
 
 interface AutoPatchBundle {
   latestRes: LatestPatchResponse;
@@ -363,6 +370,17 @@ export default function App() {
           </button>
           <button
             type="button"
+            onClick={() => handleSwitchMode('zero-day')}
+            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+              sourceMode === 'zero-day'
+                ? 'bg-amber-500/20 text-amber-200 border-amber-500/60'
+                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" /> {t.tabZeroDay}
+          </button>
+          <button
+            type="button"
             onClick={() => handleSwitchMode('auto')}
             className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
               sourceMode === 'auto'
@@ -420,35 +438,83 @@ export default function App() {
           />
         )}
 
+        {sourceMode === 'zero-day' && (
+          <Suspense
+            fallback={
+              <div className="rounded-xl bg-slate-900 border border-slate-800 p-8 flex items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
+                {t.loadingCharts}
+              </div>
+            }
+          >
+            <ZeroDayRadarPanel
+              latestVersion={latestPatch?.version ?? null}
+              selectedMap={selectedMap}
+              onChangeMap={(m) => {
+                setSelectedMap(m);
+                if (m === 'aram') {
+                  setSelectedRole('');
+                }
+              }}
+              targetProfile={targetProfile}
+              onChangeTarget={setTargetProfile}
+              onOpenChampionInAiLab={(champKey) => {
+                setLabChampKey(champKey);
+                setRecommendState(null);
+                setSimState(null);
+                setSourceMode('ai-lab');
+              }}
+            />
+          </Suspense>
+        )}
+
         {sourceMode === 'auto' && (
-          <AutoPatchPanel
-            latestPatch={latestPatch}
-            changedChampions={autoChampions}
-            changedItems={autoItems}
-            changedRunes={autoRunes}
-            selectedChampionKey={selectedChampKey}
-            onSelectChampion={(key) => {
-              setSelectedChampKey(key);
-              setSimState(null);
-            }}
-            onSync={handleSyncPatches}
-            isSyncing={isSyncing}
-            syncNotice={syncNotice}
-          />
+          <Suspense
+            fallback={
+              <div className="rounded-xl bg-slate-900 border border-slate-800 p-8 flex items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                {t.loadingCharts}
+              </div>
+            }
+          >
+            <AutoPatchPanel
+              latestPatch={latestPatch}
+              changedChampions={autoChampions}
+              changedItems={autoItems}
+              changedRunes={autoRunes}
+              selectedChampionKey={selectedChampKey}
+              onSelectChampion={(key) => {
+                setSelectedChampKey(key);
+                setSimState(null);
+              }}
+              onSync={handleSyncPatches}
+              isSyncing={isSyncing}
+              syncNotice={syncNotice}
+            />
+          </Suspense>
         )}
 
         {sourceMode === 'manual' && (
-          <PatchInputPanel
-            rawText={rawText}
-            setRawText={setRawText}
-            patchVersion={patchVersion}
-            setPatchVersion={setPatchVersion}
-            onParse={handleParse}
-            isParsing={isParsing}
-          />
+          <Suspense
+            fallback={
+              <div className="rounded-xl bg-slate-900 border border-slate-800 p-8 flex items-center justify-center gap-2 text-xs text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin text-cyan-400" />
+                {t.loadingCharts}
+              </div>
+            }
+          >
+            <PatchInputPanel
+              rawText={rawText}
+              setRawText={setRawText}
+              patchVersion={patchVersion}
+              setPatchVersion={setPatchVersion}
+              onParse={handleParse}
+              isParsing={isParsing}
+            />
+          </Suspense>
         )}
 
-        {sourceMode !== 'ai-lab' && (
+        {(sourceMode === 'auto' || sourceMode === 'manual') && (
           <>
             <DiffCardList
               champions={parsedChampions}

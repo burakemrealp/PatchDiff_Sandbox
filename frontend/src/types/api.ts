@@ -409,3 +409,102 @@ export interface FeedbackSummaryResponse {
     created_at: string;
   }[];
 }
+
+export type ZeroDayVerdictCode =
+  | 'MODE_SPECIFIC_TRAP'
+  | 'TRAP_BUFF_NET_NERF'
+  | 'HIDDEN_NET_BUFF'
+  | 'PLACEBO_BUFF'
+  | 'PAPER_TIGER_NERF'
+  | 'CONFIRMED_POWER_SPIKE'
+  | 'CONFIRMED_HEAVY_NERF'
+  | 'VERIFIED_BUFF'
+  | 'VERIFIED_NERF'
+  | 'NEUTRAL_ADJUSTMENT';
+
+export interface ZeroDayCatalyst {
+  entity_type: 'item' | 'rune';
+  entity_key: string;
+  entity_name: string;
+  icon_url?: string | null;
+  direction: 'BUFF' | 'NERF' | 'ADJUSTMENT';
+}
+
+export interface ZeroDayCoreItem {
+  item_id: string;
+  name: string;
+  gold_total: number;
+  icon_url?: string | null;
+  is_boot: boolean;
+}
+
+export interface ZeroDayChampionEntry {
+  champion_key: string;
+  champion_name: string;
+  role: RoleKey;
+  role_label: string;
+  kit_archetype_label: string;
+  keystone_key: string;
+  champion_changed_in_patch: boolean;
+  official_direction?: 'BUFF' | 'NERF' | 'ADJUSTMENT' | null;
+  power_shift_score: number;
+  burst_delta_pct: number;
+  dps_delta_pct: number;
+  ehp_delta_pct: number;
+  core_gold_delta: number;
+  ecosystem_shift_pct: number;
+  mechanic_shift_pct: number;
+  catalysts: ZeroDayCatalyst[];
+  core_items: ZeroDayCoreItem[];
+  verdict_code?: ZeroDayVerdictCode;
+  verdict_label?: string;
+  is_myth_busted?: boolean;
+  verdict_summary?: string;
+}
+
+export interface ZeroDayShareCard {
+  headline: string;
+  subtitle: string;
+  patch_transition: string;
+  champions_scanned: number;
+  hidden_winners_count: number;
+  hidden_losers_count: number;
+  myths_busted_count: number;
+  top_winner: ZeroDayChampionEntry | null;
+  top_hidden_mover: ZeroDayChampionEntry | null;
+  top_myth: ZeroDayChampionEntry | null;
+}
+
+export interface ZeroDayRadarReport {
+  from_version: string;
+  from_display_version: string;
+  to_version: string;
+  to_display_version: string;
+  game_map: MapKey;
+  map_label: string;
+  target_profile: 'squishy' | 'bruiser' | 'tank';
+  target_label: string;
+  champions_scanned: number;
+  scan_duration_ms: number;
+  summary_counts: {
+    hidden_winners: number;
+    hidden_losers: number;
+    mythbusters_total: number;
+    myths_busted: number;
+    items_changed: number;
+    runes_changed: number;
+  };
+  hidden_winners: ZeroDayChampionEntry[];
+  hidden_losers: ZeroDayChampionEntry[];
+  mythbusters: ZeroDayChampionEntry[];
+  top_winners: ZeroDayChampionEntry[];
+  top_losers: ZeroDayChampionEntry[];
+  share_card: ZeroDayShareCard;
+}
+
+export interface ZeroDayRadarResponse {
+  cached: boolean;
+  cache_key: string;
+  latency_ms: number;
+  radar: ZeroDayRadarReport;
+}
