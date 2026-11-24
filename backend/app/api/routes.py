@@ -26,6 +26,7 @@ from app.schemas.api_schemas import (
     RecommendBuildsResponse,
     SimulateRequest,
     SimulateResponse,
+    ZeroDayRadarResponse,
 )
 from app.services.ai_build_advisor import AIBuildAdvisorService
 from app.services.llm_extractor import PatchExtractorService
@@ -35,11 +36,13 @@ from app.services.locale_service import (
     localize_game_context,
     localize_recommend_report,
     localize_target_label,
+    localize_zero_day_radar,
     normalize_locale,
 )
 from app.services.meta_shift_analyzer import MetaShiftAnalyzer
 from app.services.patch_sync_orchestrator import PatchSyncOrchestrator
 from app.services.sanity_checker import PatchSanityChecker
+from app.services.zero_day_oracle import ZeroDayOracleService
 from app.engine.combat_simulator import CombatSimulator
 
 router = APIRouter()
@@ -270,6 +273,78 @@ def sync_patches(
 ):
     """Triggers the Riot Data Dragon + CommunityDragon + Auto Patch Diff pipeline."""
     return PatchSyncOrchestrator.sync_if_needed(db, force=force)
+
+
+@router.get("/patches/zero-day-radar", response_model=ZeroDayRadarResponse, tags=["Zero-Day Meta Oracle"])
+def get_zero_day_radar(
+    to_version: str | None = Query(default=None, description="Target patch version (defaults to latest synced patch)"),
+    target_profile: str = Query(
+        default="squishy",
+        pattern="^(squishy|bruiser|tank)$",
+        description="Target dummy defensive profile",
+    ),
+    game_map: str = Query(
+        default="sr",
+        pattern="^(sr|aram|swiftplay)$",
+        description="Map or game mode (sr, aram, swiftplay)",
+    ),
+    limit: int = Query(default=8, ge=1, le=25, description="Maximum champions returned per radar bucket"),
+    lang: str = Query(default="tr_TR", description="Official League of Legends locale code"),
+    db: Session = Depends(get_db),
+):
+    """
+    Runs a full-roster Day-0 mathematical patch scan to uncover Hidden Winners/Losers,
+    Patch Mythbusters (placebo buffs, paper-tiger nerfs, trap buffs, mode-only edits),
+    and 25-locale share-card summaries before Day-1 match statistics exist.
+    """
+    resolved_ver = to_version
+    if not resolved_ver:
+        latest = db.query(PatchVersion).filter_by(is_latest=True).first()
+        resolved_ver = latest.version if latest else "latest"
+
+    riot_locale, _, _ = normalize_locale(lang)
+    cache_key = (
+        f"patchdiff:radar:v1:{resolved_ver}:{target_profile}:{game_map}:{limit}:{riot_locale}"
+    )
+
+    try:
+        cached_raw = redis_client.get(cache_key)
+        if cached_raw:
+            cached_obj = json.loads(cached_raw)
+            return ZeroDayRadarResponse(
+                cached=True,
+                cache_key=cache_key,
+                latency_ms=0.0,
+                radar=cached_obj,
+            )
+    except Exception:
+        pass
+
+    try:
+        radar = ZeroDayOracleService.analyze_patch_radar(
+            db=db,
+            to_version=to_version,
+            target_profile_key=target_profile,
+            game_map=game_map,
+            limit_per_bucket=limit,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+    localized = localize_zero_day_radar(radar, lang=riot_locale, version=resolved_ver)
+    latency_ms = float(localized.get("scan_duration_ms", 0.0))
+
+    try:
+        redis_client.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(localized, ensure_ascii=False))
+    except Exception:
+        pass
+
+    return ZeroDayRadarResponse(
+        cached=False,
+        cache_key=cache_key,
+        latency_ms=latency_ms,
+        radar=localized,
+    )
 
 
 @router.get("/patches/{version}/diffs", tags=["Auto Patch Sync"])

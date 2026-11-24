@@ -620,3 +620,431 @@ def _localize_tr_rune_page(rp: Optional[Dict[str, Any]]) -> None:
             else:
                 localized_notes.append(SYNERGY_NOTE_TR_MAP.get(note, note))
         rp["synergy_notes"] = localized_notes
+
+
+ZERO_DAY_VERDICT_LABELS: Dict[str, Dict[str, str]] = {
+    "tr": {
+        "MODE_SPECIFIC_TRAP": "Farklı Mod Değişikliği (SR Etkisi Yok)",
+        "TRAP_BUFF_NET_NERF": "Tuzak Buff (Ekosistemde Net Zayıflama)",
+        "HIDDEN_NET_BUFF": "Gizli Net Güçlenme (Nerfe Rağmen Artı)",
+        "PLACEBO_BUFF": "Plasebo Buff (< +%1 Gerçek Etki)",
+        "PAPER_TIGER_NERF": "Kâğıt Üstü Nerf (< %1 Kombo Kaybı)",
+        "CONFIRMED_POWER_SPIKE": "Doğrulanmış Güç Patlaması",
+        "CONFIRMED_HEAVY_NERF": "Doğrulanmış Ağır Nerf",
+        "VERIFIED_BUFF": "Doğrulanmış Net Buff",
+        "VERIFIED_NERF": "Doğrulanmış Net Nerf",
+        "NEUTRAL_ADJUSTMENT": "Dengeli / Nötr Düzenleme",
+    },
+    "en": {
+        "MODE_SPECIFIC_TRAP": "Mode-Only Adjustment (No SR Impact)",
+        "TRAP_BUFF_NET_NERF": "Trap Buff (Net Ecosystem Nerf)",
+        "HIDDEN_NET_BUFF": "Hidden Net Buff (Despite Patch Nerf)",
+        "PLACEBO_BUFF": "Placebo Buff (< +1% Combat Impact)",
+        "PAPER_TIGER_NERF": "Paper-Tiger Nerf (< 1% Full-Combo Loss)",
+        "CONFIRMED_POWER_SPIKE": "Confirmed Power Spike",
+        "CONFIRMED_HEAVY_NERF": "Confirmed Heavy Nerf",
+        "VERIFIED_BUFF": "Verified Net Buff",
+        "VERIFIED_NERF": "Verified Net Nerf",
+        "NEUTRAL_ADJUSTMENT": "Neutral Adjustment",
+    },
+    "de": {
+        "MODE_SPECIFIC_TRAP": "Modus-spezifische Änderung (Kein SR-Einfluss)",
+        "TRAP_BUFF_NET_NERF": "Fallen-Buff (Netto-Ökosystem-Nerf)",
+        "HIDDEN_NET_BUFF": "Versteckter Netto-Buff (Trotz Nerf)",
+        "PLACEBO_BUFF": "Placebo-Buff (< +1% Kampfwirkung)",
+        "PAPER_TIGER_NERF": "Papiertiger-Nerf (< 1% Kombo-Verlust)",
+        "CONFIRMED_POWER_SPIKE": "Bestätigter Power-Spike",
+        "CONFIRMED_HEAVY_NERF": "Bestätigter Starker Nerf",
+        "VERIFIED_BUFF": "Bestätigter Netto-Buff",
+        "VERIFIED_NERF": "Bestätigter Netto-Nerf",
+        "NEUTRAL_ADJUSTMENT": "Neutrale Anpassung",
+    },
+    "es": {
+        "MODE_SPECIFIC_TRAP": "Cambio Exclusivo de Otro Modo",
+        "TRAP_BUFF_NET_NERF": "Buff Trampa (Nerf Neto de Ecosistema)",
+        "HIDDEN_NET_BUFF": "Buff Neto Oculto (Pese al Nerf)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% Impacto Real)",
+        "PAPER_TIGER_NERF": "Nerf de Papel (< 1% Pérdida de Combo)",
+        "CONFIRMED_POWER_SPIKE": "Pico de Poder Confirmado",
+        "CONFIRMED_HEAVY_NERF": "Nerf Fuerte Confirmado",
+        "VERIFIED_BUFF": "Buff Neto Verificado",
+        "VERIFIED_NERF": "Nerf Neto Verificado",
+        "NEUTRAL_ADJUSTMENT": "Ajuste Neutral",
+    },
+    "fr": {
+        "MODE_SPECIFIC_TRAP": "Ajustement Spécifique à un Autre Mode",
+        "TRAP_BUFF_NET_NERF": "Buff Piège (Nerf Net d'Écosystème)",
+        "HIDDEN_NET_BUFF": "Buff Net Caché (Malgré le Nerf)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% d'Impact Réel)",
+        "PAPER_TIGER_NERF": "Nerf en Papier (< 1% Perte de Combo)",
+        "CONFIRMED_POWER_SPIKE": "Pic de Puissance Confirmé",
+        "CONFIRMED_HEAVY_NERF": "Gros Nerf Confirmé",
+        "VERIFIED_BUFF": "Buff Net Vérifié",
+        "VERIFIED_NERF": "Nerf Net Vérifié",
+        "NEUTRAL_ADJUSTMENT": "Ajustement Neutre",
+    },
+    "it": {
+        "MODE_SPECIFIC_TRAP": "Modifica Specifica per Altra Modalità",
+        "TRAP_BUFF_NET_NERF": "Buff Trappola (Nerf Netto)",
+        "HIDDEN_NET_BUFF": "Buff Netto Nascosto (Nonostante il Nerf)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% Impatto Reale)",
+        "PAPER_TIGER_NERF": "Nerf Apparente (< 1% Perdita Combo)",
+        "CONFIRMED_POWER_SPIKE": "Picco di Potenza Confermato",
+        "CONFIRMED_HEAVY_NERF": "Nerf Pesante Confermato",
+        "VERIFIED_BUFF": "Buff Netto Verificato",
+        "VERIFIED_NERF": "Nerf Netto Verificato",
+        "NEUTRAL_ADJUSTMENT": "Aggiustamento Neutro",
+    },
+    "pt": {
+        "MODE_SPECIFIC_TRAP": "Ajuste Exclusivo de Outro Modo",
+        "TRAP_BUFF_NET_NERF": "Buff Armadilha (Nerf Líquido)",
+        "HIDDEN_NET_BUFF": "Buff Líquido Oculto (Apesar do Nerf)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% Impacto Real)",
+        "PAPER_TIGER_NERF": "Nerf no Papel (< 1% Perda de Combo)",
+        "CONFIRMED_POWER_SPIKE": "Pico de Poder Confirmado",
+        "CONFIRMED_HEAVY_NERF": "Nerf Pesado Confirmado",
+        "VERIFIED_BUFF": "Buff Líquido Verificado",
+        "VERIFIED_NERF": "Nerf Líquido Verificado",
+        "NEUTRAL_ADJUSTMENT": "Ajuste Neutro",
+    },
+    "pl": {
+        "MODE_SPECIFIC_TRAP": "Zmiana Tylko dla Innego Trybu",
+        "TRAP_BUFF_NET_NERF": "Buff-Pułapka (Netto Osłabienie)",
+        "HIDDEN_NET_BUFF": "Ukryty Netto Buff (Mimo Nerfa)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% Wpływu)",
+        "PAPER_TIGER_NERF": "Papierowy Nerf (< 1% Straty Kombo)",
+        "CONFIRMED_POWER_SPIKE": "Potwierdzony Skok Mocy",
+        "CONFIRMED_HEAVY_NERF": "Potwierdzony Mocny Nerf",
+        "VERIFIED_BUFF": "Potwierdzony Netto Buff",
+        "VERIFIED_NERF": "Potwierdzony Netto Nerf",
+        "NEUTRAL_ADJUSTMENT": "Neutralna Zmiana",
+    },
+    "ru": {
+        "MODE_SPECIFIC_TRAP": "Правка только для другого режима",
+        "TRAP_BUFF_NET_NERF": "Ловушка-бафф (итоговое ослабление)",
+        "HIDDEN_NET_BUFF": "Скрытый бафф (вопреки нерфу)",
+        "PLACEBO_BUFF": "Бафф-плацебо (< +1% в бою)",
+        "PAPER_TIGER_NERF": "Бумажный нерф (< 1% потери комбо)",
+        "CONFIRMED_POWER_SPIKE": "Подтверждённый скачок силы",
+        "CONFIRMED_HEAVY_NERF": "Подтверждённый сильный нерф",
+        "VERIFIED_BUFF": "Подтверждённый бафф",
+        "VERIFIED_NERF": "Подтверждённый нерф",
+        "NEUTRAL_ADJUSTMENT": "Нейтральная правка",
+    },
+    "cs": {
+        "MODE_SPECIFIC_TRAP": "Úprava jen pro jiný herní režim",
+        "TRAP_BUFF_NET_NERF": "Past-buff (čisté oslabení)",
+        "HIDDEN_NET_BUFF": "Skrytý čistý buff (navzdory nerfu)",
+        "PLACEBO_BUFF": "Placebo buff (< +1% dopad)",
+        "PAPER_TIGER_NERF": "Papírový nerf (< 1% ztráta komba)",
+        "CONFIRMED_POWER_SPIKE": "Potvrzený nárůst síly",
+        "CONFIRMED_HEAVY_NERF": "Potvrzený silný nerf",
+        "VERIFIED_BUFF": "Ověřený čistý buff",
+        "VERIFIED_NERF": "Ověřený čistý nerf",
+        "NEUTRAL_ADJUSTMENT": "Neutrální úprava",
+    },
+    "el": {
+        "MODE_SPECIFIC_TRAP": "Αλλαγή μόνο για άλλη λειτουργία",
+        "TRAP_BUFF_NET_NERF": "Παγίδα Buff (Καθαρή Αποδυνάμωση)",
+        "HIDDEN_NET_BUFF": "Κρυφό Καθαρό Buff (Παρά το Nerf)",
+        "PLACEBO_BUFF": "Εικονικό Buff (< +1% Επίδραση)",
+        "PAPER_TIGER_NERF": "Χάρτινο Nerf (< 1% Απώλεια)",
+        "CONFIRMED_POWER_SPIKE": "Επιβεβαιωμένο Power Spike",
+        "CONFIRMED_HEAVY_NERF": "Επιβεβαιωμένο Βαρύ Nerf",
+        "VERIFIED_BUFF": "Επιβεβαιωμένο Buff",
+        "VERIFIED_NERF": "Επιβεβαιωμένο Nerf",
+        "NEUTRAL_ADJUSTMENT": "Ουδέτερη Ρύθμιση",
+    },
+    "hu": {
+        "MODE_SPECIFIC_TRAP": "Más játékmódra vonatkozó módosítás",
+        "TRAP_BUFF_NET_NERF": "Csapda Buff (Nettó Gyengülés)",
+        "HIDDEN_NET_BUFF": "Rejtett Nettó Buff (Nerf Ellenére)",
+        "PLACEBO_BUFF": "Placebo Buff (< +1% Harci Hatás)",
+        "PAPER_TIGER_NERF": "Papír Nerf (< 1% Kombó Veszteség)",
+        "CONFIRMED_POWER_SPIKE": "Igazolt Erőlöket",
+        "CONFIRMED_HEAVY_NERF": "Igazolt Erős Nerf",
+        "VERIFIED_BUFF": "Igazolt Nettó Buff",
+        "VERIFIED_NERF": "Igazolt Nettó Nerf",
+        "NEUTRAL_ADJUSTMENT": "Semleges Módosítás",
+    },
+    "ro": {
+        "MODE_SPECIFIC_TRAP": "Modificare exclusivă altui mod",
+        "TRAP_BUFF_NET_NERF": "Buff Capcană (Nerf Net)",
+        "HIDDEN_NET_BUFF": "Buff Net Ascuns (În Ciuda Nerfului)",
+        "PLACEBO_BUFF": "Buff Placebo (< +1% Impact)",
+        "PAPER_TIGER_NERF": "Nerf Pe Hârtie (< 1% Pierdere)",
+        "CONFIRMED_POWER_SPIKE": "Creștere Confirmată de Putere",
+        "CONFIRMED_HEAVY_NERF": "Nerf Puternic Confirmat",
+        "VERIFIED_BUFF": "Buff Net Verificat",
+        "VERIFIED_NERF": "Nerf Net Verificat",
+        "NEUTRAL_ADJUSTMENT": "Ajustare Neutră",
+    },
+    "ar": {
+        "MODE_SPECIFIC_TRAP": "تعديل خاص بنمط آخر",
+        "TRAP_BUFF_NET_NERF": "تعزيز خادع (انخفاض فعلي)",
+        "HIDDEN_NET_BUFF": "تعزيز خفي رغم الإضعاف",
+        "PLACEBO_BUFF": "تعزيز شكلي (< +1% تأثير قتالي)",
+        "PAPER_TIGER_NERF": "إضعاف ورقي (< 1% خسارة ضرر)",
+        "CONFIRMED_POWER_SPIKE": "قفزة قوة مؤكدة",
+        "CONFIRMED_HEAVY_NERF": "إضعاف قوي مؤكد",
+        "VERIFIED_BUFF": "تعزيز فعلي مؤكد",
+        "VERIFIED_NERF": "إضعاف فعلي مؤكد",
+        "NEUTRAL_ADJUSTMENT": "تعديل متوازن",
+    },
+    "ja": {
+        "MODE_SPECIFIC_TRAP": "他モード専用調整 (SR影響なし)",
+        "TRAP_BUFF_NET_NERF": "罠バフ (環境トータル弱体化)",
+        "HIDDEN_NET_BUFF": "隠れ実質バフ (ナーフ下でも強化)",
+        "PLACEBO_BUFF": "プラセボバフ (+1%未満の影響)",
+        "PAPER_TIGER_NERF": "見かけナーフ (1%未満の損失)",
+        "CONFIRMED_POWER_SPIKE": "確実なパワースパイク",
+        "CONFIRMED_HEAVY_NERF": "確実な大幅ナーフ",
+        "VERIFIED_BUFF": "実質バフ確認済み",
+        "VERIFIED_NERF": "実質ナーフ確認済み",
+        "NEUTRAL_ADJUSTMENT": "中立的な調整",
+    },
+    "ko": {
+        "MODE_SPECIFIC_TRAP": "타 모드 전용 변경 (소환사의 협곡 무영향)",
+        "TRAP_BUFF_NET_NERF": "함정 버프 (아이템/룬 포함 실질 너프)",
+        "HIDDEN_NET_BUFF": "숨은 실질 버프 (너프에도 순상승)",
+        "PLACEBO_BUFF": "플라시보 버프 (실전 +1% 미만)",
+        "PAPER_TIGER_NERF": "종이호랑이 너프 (1% 미만 손실)",
+        "CONFIRMED_POWER_SPIKE": "검증된 파워 스파이크",
+        "CONFIRMED_HEAVY_NERF": "검증된 대형 너프",
+        "VERIFIED_BUFF": "검증된 순수 버프",
+        "VERIFIED_NERF": "검증된 순수 너프",
+        "NEUTRAL_ADJUSTMENT": "중립적 조정",
+    },
+    "zh-TW": {
+        "MODE_SPECIFIC_TRAP": "其他模式專屬調整 (對峽谷無影響)",
+        "TRAP_BUFF_NET_NERF": "陷阱強化 (生態系淨削弱)",
+        "HIDDEN_NET_BUFF": "隱藏淨強化 (削弱後仍提升)",
+        "PLACEBO_BUFF": "安慰劑強化 (< +1% 實戰影響)",
+        "PAPER_TIGER_NERF": "紙老虎削弱 (< 1% 連招損失)",
+        "CONFIRMED_POWER_SPIKE": "確認強勢期躍升",
+        "CONFIRMED_HEAVY_NERF": "確認重度削弱",
+        "VERIFIED_BUFF": "已驗證淨強化",
+        "VERIFIED_NERF": "已驗證淨削弱",
+        "NEUTRAL_ADJUSTMENT": "中性調整",
+    },
+    "th": {
+        "MODE_SPECIFIC_TRAP": "ปรับเฉพาะโหมดอื่น (ไม่กระทบ SR)",
+        "TRAP_BUFF_NET_NERF": "บัฟหลอก (สุทธิอ่อนแอลง)",
+        "HIDDEN_NET_BUFF": "บัฟแฝงสุทธิ (แม้โดนเนิร์ฟ)",
+        "PLACEBO_BUFF": "บัฟจางมาก (ผลลัพธ์ < +1%)",
+        "PAPER_TIGER_NERF": "เนิร์ฟแค่บนกระดาษ (ลด < 1%)",
+        "CONFIRMED_POWER_SPIKE": "ยืนยันพลังพุ่งสูงขึ้น",
+        "CONFIRMED_HEAVY_NERF": "ยืนยันเนิร์ฟหนัก",
+        "VERIFIED_BUFF": "ยืนยันบัฟจริง",
+        "VERIFIED_NERF": "ยืนยันเนิร์ฟจริง",
+        "NEUTRAL_ADJUSTMENT": "ปรับสมดุลกลาง",
+    },
+    "vi": {
+        "MODE_SPECIFIC_TRAP": "Chỉnh sửa riêng cho chế độ khác",
+        "TRAP_BUFF_NET_NERF": "Buff Bẫy (Giảm sức mạnh ròng)",
+        "HIDDEN_NET_BUFF": "Buff Ngầm Thực Tế (Dù bị Nerf)",
+        "PLACEBO_BUFF": "Buff Tượng Trưng (< +1% Thực Chiến)",
+        "PAPER_TIGER_NERF": "Nerf Trên Giấy (< 1% Tổn Thất)",
+        "CONFIRMED_POWER_SPIKE": "Xác Nhận Đột Biến Sức Mạnh",
+        "CONFIRMED_HEAVY_NERF": "Xác Nhận Giảm Sức Mạnh Nặng",
+        "VERIFIED_BUFF": "Xác Nhận Tăng Sức Mạnh",
+        "VERIFIED_NERF": "Xác Nhận Giảm Sức Mạnh",
+        "NEUTRAL_ADJUSTMENT": "Điều Chỉnh Cân Bằng",
+    },
+    "id": {
+        "MODE_SPECIFIC_TRAP": "Khusus Mode Lain (Tanpa Efek SR)",
+        "TRAP_BUFF_NET_NERF": "Buff Jebakan (Net Ekosistem Nerf)",
+        "HIDDEN_NET_BUFF": "Buff Tersembunyi (Meski Kena Nerf)",
+        "PLACEBO_BUFF": "Buff Plasebo (< +1% Dampak Nyata)",
+        "PAPER_TIGER_NERF": "Nerf di Atas Kertas (< 1% Rugi)",
+        "CONFIRMED_POWER_SPIKE": "Lonjakan Kekuatan Terkonfirmasi",
+        "CONFIRMED_HEAVY_NERF": "Nerf Berat Terkonfirmasi",
+        "VERIFIED_BUFF": "Buff Bersih Terverifikasi",
+        "VERIFIED_NERF": "Nerf Bersih Terverifikasi",
+        "NEUTRAL_ADJUSTMENT": "Penyesuaian Netral",
+    },
+}
+
+ZERO_DAY_SHARE_I18N: Dict[str, Dict[str, str]] = {
+    "tr": {
+        "headline": "LoL {patch} — 0. Dakika Meta Kâhini & Yama Efsane Çürütücü",
+        "subtitle": "Maç verisi oluşmadan {count} şampiyonun deterministik taraması ({from_patch} → {patch})",
+    },
+    "en": {
+        "headline": "LoL {patch} — Zero-Day Meta Oracle & Patch Mythbuster",
+        "subtitle": "Deterministic scan of {count} champions ({from_patch} → {patch}) before Day-1 match data",
+    },
+    "de": {
+        "headline": "LoL {patch} — Zero-Day Meta-Orakel & Patch-Mythbuster",
+        "subtitle": "Deterministischer Scan von {count} Champions ({from_patch} → {patch}) ab Minute Null",
+    },
+    "es": {
+        "headline": "LoL {patch} — Oráculo Meta Día Cero y Cazador de Mitos",
+        "subtitle": "Análisis determinista de {count} campeones ({from_patch} → {patch}) desde el minuto cero",
+    },
+    "fr": {
+        "headline": "LoL {patch} — Oracle Méta Jour Zéro & Mythbuster",
+        "subtitle": "Analyse déterministe de {count} champions ({from_patch} → {patch}) dès la sortie du patch",
+    },
+    "it": {
+        "headline": "LoL {patch} — Oracolo Meta Giorno Zero & Mythbuster",
+        "subtitle": "Scansione deterministica di {count} campioni ({from_patch} → {patch}) al minuto zero",
+    },
+    "pt": {
+        "headline": "LoL {patch} — Oráculo Meta Dia Zero & Caça-Mitos",
+        "subtitle": "Varredura determinística de {count} campeões ({from_patch} → {patch}) antes dos primeiros jogos",
+    },
+    "pl": {
+        "headline": "LoL {patch} — Wyrocznia Meta Dnia Zero & Pogromca Mitów",
+        "subtitle": "Deterministyczny skan {count} bohaterów ({from_patch} → {patch}) w zerowej minucie patcha",
+    },
+    "ru": {
+        "headline": "LoL {patch} — Мета-оракул нулевого дня и разрушитель мифов",
+        "subtitle": "Детерминированный расчёт {count} чемпионов ({from_patch} → {patch}) до выхода статистики матчей",
+    },
+    "cs": {
+        "headline": "LoL {patch} — Meta Orákulum Dne Nula & Bořič Mýtů",
+        "subtitle": "Deterministický sken {count} šampionů ({from_patch} → {patch}) před prvními daty ze zápasů",
+    },
+    "el": {
+        "headline": "LoL {patch} — Μαντείο Meta Ημέρας Μηδέν & Mythbuster",
+        "subtitle": "Μαθηματική σάρωση {count} ηρώων ({from_patch} → {patch}) πριν τα πρώτα στατιστικά",
+    },
+    "hu": {
+        "headline": "LoL {patch} — Nulladik Napi Meta Jós & Mítoszromboló",
+        "subtitle": "{count} hős determinisztikus elemzése ({from_patch} → {patch}) meccsadatok előtt",
+    },
+    "ro": {
+        "headline": "LoL {patch} — Oracol Meta Ziua Zero & Mythbuster",
+        "subtitle": "Scanare deterministă pentru {count} campioni ({from_patch} → {patch}) înainte de datele live",
+    },
+    "ar": {
+        "headline": "LoL {patch} — عرّاف الميتا في الدقيقة الصفر وكاشف الأساطير",
+        "subtitle": "فحص حسابي حتمي لـ {count} بطل ({from_patch} → {patch}) قبل صدور إحصائيات المباريات",
+    },
+    "ja": {
+        "headline": "LoL {patch} — ゼロデイ・メタ予言者 & パッチ神話検証",
+        "subtitle": "試合統計が出る前に全 {count} チャンピオン ({from_patch} → {patch}) を数理スキャン",
+    },
+    "ko": {
+        "headline": "LoL {patch} — 0분 차 메타 예언자 & 패치 팩트체커",
+        "subtitle": "전적 데이터 집계 전 챔피언 {count}명 ({from_patch} → {patch}) 수학적 전수 스캔",
+    },
+    "zh-TW": {
+        "headline": "LoL {patch} — 零時差 Meta 先知 & 更新謠言終結者",
+        "subtitle": "於對戰統計生成前完成 {count} 位英雄 ({from_patch} → {patch}) 的確定性數學掃描",
+    },
+    "th": {
+        "headline": "LoL {patch} — พยากรณ์เมต้านาทีที่ศูนย์ & จับผิดแพตช์",
+        "subtitle": "สแกนคณิตศาสตร์ {count} แชมเปี้ยน ({from_patch} → {patch}) ก่อนมีสถิติจริง",
+    },
+    "vi": {
+        "headline": "LoL {patch} — Nhà Tiên Tri Meta Phút 0 & Giải Mã Bản Vá",
+        "subtitle": "Quét toán học toàn bộ {count} tướng ({from_patch} → {patch}) trước khi có dữ liệu trận đấu",
+    },
+    "id": {
+        "headline": "LoL {patch} — Peramal Meta Hari-0 & Pembongkar Mitos Patch",
+        "subtitle": "Pemindaian deterministik {count} champion ({from_patch} → {patch}) sebelum data pertandingan tersedia",
+    },
+}
+
+ZERO_DAY_SUMMARY_TR: Dict[str, str] = {
+    "MODE_SPECIFIC_TRAP": "Resmi değişiklik yalnızca yan modda (ör. Arena); bu haritadaki net etki {score:+.2f}%.",
+    "TRAP_BUFF_NET_NERF": "Tuzak Buff: Şampiyon güçlendirilmiş görünse de çekirdek eşya/rün kayıplarıyla net gücü {score:+.2f}% düştü.",
+    "HIDDEN_NET_BUFF": "Gizli Net Güçlenme: Zayıflatılmış görünse de eşya/ekosistem artışıyla net gücü {score:+.2f}% oldu.",
+    "PLACEBO_BUFF": "Plasebo Buff: Kâğıt üzerinde buff sayılıyor ancak tam dizilimde etkisi yalnızca {score:+.2f}%.",
+    "PAPER_TIGER_NERF": "Kâğıt Üstü Nerf: Korkutucu görünse de tam kombo/DPS üzerindeki gerçek kaybı yalnızca {score:+.2f}%.",
+    "CONFIRMED_POWER_SPIKE": "Doğrulanmış Güç Patlaması: Tam dizilim simülasyonunda {score:+.2f}% net güç artışı.",
+    "CONFIRMED_HEAVY_NERF": "Doğrulanmış Ağır Nerf: Tam dizilim simülasyonunda {score:+.2f}% belirgin güç düşüşü.",
+    "VERIFIED_BUFF": "Doğrulanmış Net Buff: Ölçülebilir {score:+.2f}% gerçek çatışma artışı.",
+    "VERIFIED_NERF": "Doğrulanmış Net Nerf: Ölçülebilir {score:+.2f}% gerçek çatışma düşüşü.",
+    "NEUTRAL_ADJUSTMENT": "Dengeli / Nötr Düzenleme: Gerçek çatışma değişimi {score:+.2f}%.",
+}
+
+
+def localize_zero_day_radar(
+    radar: Dict[str, Any],
+    lang: Optional[str],
+    version: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Translates Zero-Day Meta Oracle buckets, verdicts, items, runes, and share card across all 25 LoL locales."""
+    riot_locale, bkey, _ = normalize_locale(lang)
+    out = copy.deepcopy(radar)
+
+    ver = version or out.get("to_version")
+    loc = get_ddragon_localization(ver, riot_locale) or {}
+    champs_map = loc.get("champions") or {}
+    items_map = loc.get("items") or {}
+    runes_map = loc.get("runes") or {}
+    rune_ids_map = loc.get("rune_ids") or {}
+
+    verdict_bundle = ZERO_DAY_VERDICT_LABELS.get(bkey, ZERO_DAY_VERDICT_LABELS["en"])
+    role_bundle = ROLE_LABELS_I18N.get(bkey, ROLE_LABELS_I18N["en"])
+    share_bundle = ZERO_DAY_SHARE_I18N.get(bkey, ZERO_DAY_SHARE_I18N["en"])
+
+    def _loc_entry(entry: Optional[Dict[str, Any]]) -> None:
+        if not isinstance(entry, dict):
+            return
+        ckey = entry.get("champion_key")
+        if ckey and ckey in champs_map:
+            entry["champion_name"] = champs_map[ckey].get("name", entry.get("champion_name"))
+
+        rkey = str(entry.get("role") or "")
+        if rkey in role_bundle:
+            entry["role_label"] = role_bundle[rkey]
+
+        ka = entry.get("kit_archetype_label")
+        if isinstance(ka, str):
+            if bkey == "tr":
+                entry["kit_archetype_label"] = KIT_ARCHETYPE_TR.get(ka, ka)
+            else:
+                entry["kit_archetype_label"] = KIT_ARCHETYPE_EN.get(ka, ka)
+
+        for it in entry.get("core_items") or []:
+            iid = str(it.get("item_id") or "")
+            if iid in items_map:
+                it["name"] = items_map[iid]
+
+        for cat in entry.get("catalysts") or []:
+            ctype = cat.get("entity_type")
+            ekey = str(cat.get("entity_key") or "")
+            if ctype == "item" and ekey in items_map:
+                cat["entity_name"] = items_map[ekey]
+            elif ctype == "rune":
+                if ekey in runes_map:
+                    cat["entity_name"] = runes_map[ekey]
+                elif ekey in rune_ids_map:
+                    cat["entity_name"] = rune_ids_map[ekey]
+
+        vcode = entry.get("verdict_code")
+        if isinstance(vcode, str) and vcode in verdict_bundle:
+            entry["verdict_label"] = verdict_bundle[vcode]
+            score = float(entry.get("power_shift_score", 0.0))
+            if bkey == "tr" and vcode in ZERO_DAY_SUMMARY_TR:
+                entry["verdict_summary"] = ZERO_DAY_SUMMARY_TR[vcode].format(score=score)
+            elif bkey != "en":
+                entry["verdict_summary"] = f"{verdict_bundle[vcode]} ({score:+.2f}%)"
+
+    for bucket_key in ("hidden_winners", "hidden_losers", "mythbusters", "top_winners", "top_losers"):
+        for item in out.get(bucket_key) or []:
+            _loc_entry(item)
+
+    out["map_label"] = MAP_LABELS_I18N.get(bkey, MAP_LABELS_I18N["en"]).get(
+        str(out.get("game_map") or "sr"), out.get("map_label")
+    )
+    out["target_label"] = localize_target_label(out.get("target_profile"), riot_locale)
+
+    sc = out.get("share_card")
+    if isinstance(sc, dict):
+        to_disp = str(out.get("to_display_version") or out.get("to_version") or "")
+        from_disp = str(out.get("from_display_version") or out.get("from_version") or "")
+        count = int(out.get("champions_scanned") or 0)
+        sc["headline"] = share_bundle["headline"].format(patch=to_disp)
+        sc["subtitle"] = share_bundle["subtitle"].format(
+            patch=to_disp, from_patch=from_disp, count=count
+        )
+        _loc_entry(sc.get("top_winner"))
+        _loc_entry(sc.get("top_hidden_mover"))
+        _loc_entry(sc.get("top_myth"))
+
+    return out

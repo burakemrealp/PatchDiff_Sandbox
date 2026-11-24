@@ -107,3 +107,10 @@ class FeedbackSummaryResponse(BaseModel):
     helpful_rate_pct: float
     by_playstyle: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
     recent_comments: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class ZeroDayRadarResponse(BaseModel):
+    cached: bool = Field(default=False, description="Whether the radar report was served from Redis cache")
+    cache_key: str
+    latency_ms: float
+    radar: Dict[str, Any]
