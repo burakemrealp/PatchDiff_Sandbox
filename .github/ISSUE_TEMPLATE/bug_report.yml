@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report a simulation discrepancy, patch sync issue, API error, or UI bug.
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug in **PatchDiff Sandbox**.
+        - **Security Warning:** Do **not** open a public issue for exposed API keys or security vulnerabilities — report privately via **Security -> Advisories** (see `SECURITY.md`).
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected Component
+      description: Select the part of PatchDiff Sandbox where the issue occurred.
+      options:
+        - Combat Simulator / Damage Engine
+        - AI Build & Full Rune Optimizer
+        - Patch Sync (Data Dragon / CommunityDragon)
+        - Patch Diff / LLM Parser
+        - Frontend Dashboard / Charts
+        - Localization (25 Official LoL Locales)
+        - Backend API / Infrastructure
+    validations:
+      required: true
+
+  - type: input
+    id: patch_version
+    attributes:
+      label: League Patch Version / App Version
+      description: Which LoL patch version and PatchDiff Sandbox version did you test?
+      placeholder: "e.g., LoL 16.23.1 / App v1.0.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Champion, enemy profile, build/runes, or API payload needed to reproduce the issue.
+      placeholder: |
+        1. Select champion...
+        2. Run simulation or optimization...
+        3. Observe mismatch...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_vs_actual
+    attributes:
+      label: Expected vs. Actual Behavior
+      description: Describe what should happen mathematically or visually versus what actually occurred.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment_logs
+    attributes:
+      label: Environment & Relevant Logs
+      description: OS, Python/Node versions, browser, and redacted logs (ensure no secrets or .env values are pasted).
+      placeholder: "OS: Windows 11 / Ubuntu 24.04 | Python 3.12 | Node 24"

@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Riot Games Developer Policies
+    url: https://developer.riotgames.com/policies/general
+    about: Official Riot Games developer compliance guidelines enforced by PatchDiff Sandbox (Zero-Vanguard / client-independent rules).

@@ -1,0 +1,50 @@
+name: Feature Request
+description: Propose a Zero-Vanguard, client-independent feature or enhancement.
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        PatchDiff Sandbox strictly enforces two design pillars:
+        1. **Client-Free / Zero-Vanguard Safety:** No game client hooks, memory reading, overlays, or input automation.
+        2. **Zero Champion Hardcoding:** Mechanics must work dynamically across champion kits using Riot static attributes.
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category / Roadmap Wave
+      options:
+        - Combat Mechanics / Item & Rune Modeling
+        - Wave 1 (Zero-Day Hidden Winners, ARAM Multipliers, Dynamic Pivots)
+        - Wave 2 (Web Breakpoint Coach, Native Item Set JSON Export, 5v5 Matrix)
+        - Wave 3 (Riot Match-V5 Post-Game Audit)
+        - UI / Localization / Developer Experience
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: Problem Statement
+      description: What player or theorycrafting problem does this feature solve?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe how the feature would behave using public static data or sandbox inputs.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: compliance_check
+    attributes:
+      label: Architecture & Riot Compliance Confirmation
+      options:
+        - label: This proposal works independently of the League of Legends client and Riot Vanguard.
+          required: true
+        - label: This proposal avoids per-champion hardcoded special cases.
+          required: true
