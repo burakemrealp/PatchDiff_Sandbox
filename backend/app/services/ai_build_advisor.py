@@ -134,6 +134,7 @@ class AIBuildAdvisorService:
             "patch": f"{from_disp} -> {to_disp}",
             "role": gc.get("role_label", "Mid Lane"),
             "map": gc.get("map_label", "Summoner's Rift (5v5)"),
+            "game_state": report.get("game_state", "even"),
             "total_slots": gc.get("total_item_slots", 6),
             "role_quest_reward": gc.get("quest_reward"),
             "target_profile": report["target_profile"],

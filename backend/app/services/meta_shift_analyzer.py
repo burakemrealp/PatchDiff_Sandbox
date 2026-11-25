@@ -3,8 +3,9 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy.orm import Session
 
 from app.core.versioning import build_item_icon_url, to_display_version
-from app.engine.build_optimizer import BuildOptimizerEngine
+from app.engine.build_optimizer import BuildOptimizerEngine, filter_candidate_items
 from app.engine.combat_simulator import CombatSimulator
+from app.engine.game_state_pivot_engine import GameStatePivotEngine
 from app.models.entities import (
     AutoPatchDiff,
     ChampionSnapshot,
@@ -98,6 +99,7 @@ class MetaShiftAnalyzer:
         champion_patch_diff: Optional[Dict[str, Any]] = None,
         role: Optional[str] = None,
         game_map: str = "sr",
+        game_state: str = "even",
         db_runes: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         """Produces a full 6/7-item + full rune page meta shift report across two patch snapshots."""
@@ -113,6 +115,7 @@ class MetaShiftAnalyzer:
             target_profile_key=target_profile_key,
             role=role,
             game_map=game_map,
+            game_state=game_state,
             db_runes=db_runes,
         )
         game_context = new_opt["game_context"]
@@ -269,6 +272,20 @@ class MetaShiftAnalyzer:
         for idx, v in enumerate(enriched_variations, start=1):
             v["rank"] = idx
 
+        filtered_for_pivot = filter_candidate_items(new_items, profile)
+        pivot_bundle = GameStatePivotEngine.audit_traps_and_build_pivot_tree(
+            champion_key=champion_key,
+            base_stats=new_base_stats,
+            base_abilities=new_abilities,
+            all_items=new_items,
+            filtered_items=filtered_for_pivot,
+            profile=profile,
+            rules=game_context,
+            target_profile_key=target_profile_key,
+            primary_variation=enriched_variations[0] if enriched_variations else None,
+            active_game_state=game_state,
+        )
+
         return {
             "champion_key": champion_key,
             "champion_name": champion_name,
@@ -277,8 +294,12 @@ class MetaShiftAnalyzer:
             "to_version": to_version,
             "to_display_version": to_display_version(to_version),
             "target_profile": target_profile_key,
+            "game_map": game_map,
+            "game_state": game_state,
             "game_context": game_context,
             "aram_modifiers": AramBalanceService.get_champion_aram_modifiers(champion_key),
+            "winrate_trap_warnings": pivot_bundle["winrate_trap_warnings"],
+            "pivot_tree": pivot_bundle,
             "profile": profile,
             "champion_changed_in_patch": champion_patch_diff is not None,
             "champion_patch_diff": champion_patch_diff,
@@ -295,6 +316,7 @@ class MetaShiftAnalyzer:
         to_version: Optional[str] = None,
         role: Optional[str] = None,
         game_map: str = "sr",
+        game_state: str = "even",
     ) -> Dict[str, Any]:
         """Loads the latest two patch snapshots and runes from PostgreSQL to run MetaShiftAnalyzer."""
         if to_version:
@@ -375,5 +397,6 @@ class MetaShiftAnalyzer:
             champion_patch_diff=diff_row.diff_payload if diff_row else None,
             role=role,
             game_map=game_map,
+            game_state=game_state,
             db_runes=db_runes or None,
         )

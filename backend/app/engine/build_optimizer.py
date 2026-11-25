@@ -3,6 +3,13 @@ from typing import Any, Dict, List, Optional, Set, Tuple
 from app.engine.combat_simulator import CombatSimulator
 from app.engine.full_rune_page_engine import FullRunePageEngine
 from app.engine.game_rules import infer_default_role, resolve_effective_rules
+from app.engine.game_state_pivot_engine import (
+    SNOWBALL_SPIKE_IDS,
+    SNOWBALL_STACK_IDS,
+    compute_game_state_score_adjustment,
+    is_comeback_anchor_item,
+    select_game_state_boot_override,
+)
 from app.engine.passive_and_rune_engine import SUPPORTED_KEYSTONES
 from app.engine.stat_aggregator import StatAggregator
 from app.schemas.patch_contracts import ChampionPatchDiff
@@ -468,10 +475,12 @@ def order_build_items(
     boot: Optional[Dict[str, Any]],
     profile: Dict[str, Any],
     rules: Dict[str, Any],
+    game_state: str = "even",
 ) -> List[Dict[str, Any]]:
     """
     Orders the selected 5 (or 6 for ADC) legendary items and boots into a realistic match buy order:
     1st Core -> Boots -> 2nd -> 3rd -> 4th -> 5th (-> 6th).
+    Adapts Slot 2-3 timing for 'behind' (affordable defense/%Pen) vs. 'ahead' (snowball spikes).
     """
     def _buy_priority(item: Dict[str, Any]) -> Tuple[int, int]:
         iid = str(item.get("item_id", ""))
@@ -486,6 +495,16 @@ def order_build_items(
             return (0, gold)
         if profile.get("is_aa_onhit_mage") and iid == "3115":
             return (0, gold)
+
+        if game_state == "behind":
+            if is_comeback_anchor_item(item) and gold <= 3100:
+                return (1, gold)
+            if gold >= 3400 or iid in SNOWBALL_STACK_IDS:
+                return (4, gold)
+
+        if game_state == "ahead" and iid in (SNOWBALL_STACK_IDS | SNOWBALL_SPIKE_IDS):
+            return (1, gold)
+
         if iid in FIRST_ITEM_PRIORITY_IDS:
             return (1, gold)
         # 3: Late-game multiplier / % penetration / defensive capstone
@@ -572,6 +591,7 @@ class BuildOptimizerEngine:
         objective: str,
         profile: Dict[str, Any],
         rules: Dict[str, Any],
+        game_state: str = "even",
     ) -> Tuple[float, Dict[str, Any]]:
         curves = sim["level_curves"]
         max_idx = len(curves) - 1
@@ -701,6 +721,16 @@ class BuildOptimizerEngine:
                 + kit_bonus
             ) * (0.85 + 0.15 * gold_factor)
 
+        score += compute_game_state_score_adjustment(
+            real_items=real_items,
+            profile=profile,
+            avg_ehp_11=avg_ehp_11,
+            burst_val=burst_val,
+            ah=ah,
+            game_state=game_state,
+            rules=rules,
+        )
+
         metrics = {
             "lvl11_burst": lvl11["new_burst"],
             "lvl18_burst": curves[17]["new_burst"],
@@ -732,6 +762,7 @@ class BuildOptimizerEngine:
         target_profile_key: str = "squishy",
         role: Optional[str] = None,
         game_map: str = "sr",
+        game_state: str = "even",
         db_runes: Optional[List[Dict[str, Any]]] = None,
         core_slots: Optional[int] = None,
         beam_width: int = 4,
@@ -739,7 +770,7 @@ class BuildOptimizerEngine:
     ) -> Dict[str, Any]:
         """
         Discovers 3 distinct full-build variations (6 items total, or 7 for SR ADC) with
-        realistic buy order and full rune pages tailored to champion, role, map, and patch diffs.
+        realistic buy order and full rune pages tailored to champion, role, map, game_state, and patch diffs.
         """
         patch_signals = analyze_patch_diff_signals(champion_patch_diff or patch_diff)
         profile = infer_champion_profile(
@@ -750,7 +781,8 @@ class BuildOptimizerEngine:
             patch_signals=patch_signals,
         )
         resolved_role = role or infer_default_role(tags)
-        rules = resolve_effective_rules(role=resolved_role, game_map=game_map)
+        rules = dict(resolve_effective_rules(role=resolved_role, game_map=game_map))
+        rules["game_state"] = game_state
 
         filtered_items = filter_candidate_items(candidate_items, profile)
         candidate_keystones = select_candidate_keystones(profile)
@@ -775,7 +807,8 @@ class BuildOptimizerEngine:
         used_signatures: Set[Tuple[Tuple[str, ...], Optional[str]]] = set()
 
         for obj in objectives:
-            boot = select_optimal_boot(candidate_items, profile, obj, target_profile_key, rules)
+            base_boot = select_optimal_boot(candidate_items, profile, obj, target_profile_key, rules)
+            boot = select_game_state_boot_override(candidate_items, profile, base_boot, game_state, rules)
             boot_list = [boot] if boot else []
 
             # 1. Fast 1-item pre-ranking to prune pool down to top_pool_size items
@@ -792,7 +825,7 @@ class BuildOptimizerEngine:
                     role=resolved_role,
                     game_map=game_map,
                 )
-                sc, _ = cls._score_simulation(sim, base_stats, boot_list + [it], obj, profile, rules)
+                sc, _ = cls._score_simulation(sim, base_stats, boot_list + [it], obj, profile, rules, game_state=game_state)
                 single_scored.append((sc, it))
 
             single_scored.sort(key=lambda x: x[0], reverse=True)
@@ -829,7 +862,7 @@ class BuildOptimizerEngine:
                             role=resolved_role,
                             game_map=game_map,
                         )
-                        sc, _ = cls._score_simulation(sim, base_stats, full_items, obj, profile, rules)
+                        sc, _ = cls._score_simulation(sim, base_stats, full_items, obj, profile, rules, game_state=game_state)
                         next_candidates.append((sc, combo))
 
                 if not next_candidates:
@@ -840,7 +873,7 @@ class BuildOptimizerEngine:
             # 3. Evaluate all candidate Keystones & Full Rune Pages across top complete builds
             final_ranked: List[Dict[str, Any]] = []
             for _, leg_items in beam[:3]:
-                ordered_items = order_build_items(leg_items, boot, profile, rules)
+                ordered_items = order_build_items(leg_items, boot, profile, rules, game_state=game_state)
                 item_sig = tuple(sorted(str(i["item_id"]) for i in ordered_items))
 
                 for ks in candidate_keystones:
@@ -874,7 +907,7 @@ class BuildOptimizerEngine:
                         role=resolved_role,
                         game_map=game_map,
                     )
-                    sc, metrics = cls._score_simulation(sim, base_stats, sim_items, obj, profile, rules)
+                    sc, metrics = cls._score_simulation(sim, base_stats, sim_items, obj, profile, rules, game_state=game_state)
                     final_ranked.append(
                         {
                             "signature": (item_sig, ks),

@@ -451,8 +451,8 @@ def recommend_builds(request: RecommendBuildsRequest, db: Session = Depends(get_
 
     riot_locale, _, _ = normalize_locale(request.lang)
     cache_key = (
-        f"patchdiff:rec:v8:{resolved_ver}:{request.champion_key}:"
-        f"{request.target_profile}:{request.role or 'auto'}:{request.game_map}:{int(request.use_ai)}:{riot_locale}"
+        f"patchdiff:rec:v9:{resolved_ver}:{request.champion_key}:"
+        f"{request.target_profile}:{request.role or 'auto'}:{request.game_map}:{request.game_state}:{int(request.use_ai)}:{riot_locale}"
     )
 
     try:
@@ -477,6 +477,7 @@ def recommend_builds(request: RecommendBuildsRequest, db: Session = Depends(get_
             to_version=request.to_version,
             role=request.role,
             game_map=request.game_map,
+            game_state=request.game_state,
         )
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

@@ -516,6 +516,7 @@ def localize_recommend_report(
                 var["playstyle_label"] = PLAYSTYLE_LABEL_TR[style]
             _localize_tr_rune_page(var.get("rune_page"))
 
+        _localize_pivot_and_traps(out, bkey="tr", items_map={})
         return out
 
     ver = version or out.get("to_version")
@@ -597,6 +598,7 @@ def localize_recommend_report(
                 ks["tree"] = trees_map[pt_key]
         _loc_rune_page(var.get("rune_page"))
 
+    _localize_pivot_and_traps(out, bkey=bkey, items_map=items_map)
     return out
 
 
@@ -1195,3 +1197,359 @@ def localize_pve_lab_report(
             mon["speed_label"] = tiers_map[tkey]
 
     return out
+
+
+PIVOT_AND_TRAP_I18N: Dict[str, Dict[str, Any]] = {
+    "tr": {
+        "states": {
+            "behind": "Gerideyim (Comeback / Tempo)",
+            "even": "Başabaş (Dengeli Standart)",
+            "ahead": "Öndeyim (Kartopu / Taşıyıcı)",
+        },
+        "rules": {
+            "behind": "Riskli yük eşyalarını ve 3500g+ pahalı duvarları atla; uygun maliyetli %Delme, Yetenek Hızı ve hayatta kalma eşyalarıyla erken güçlen.",
+            "even": "Çekirdek eşya patlamaları, delme ve dengeli savunma arasında standart güç eğrisini izle.",
+            "ahead": "Rakipler ölçeklenmeden oyunu bitirmek için çarpan eşyalar, sabit delme ve yüksek kartopu tavanıyla liderliği büyüt.",
+        },
+        "risk": {"HIGH": "YÜKSEK RİSK", "MODERATE": "ORTA RİSK"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": (
+                "Kartopu / Hayatta Kalma Yanlılığı Tuzağı",
+                "İstatistik sitelerinde kazanma oranı yüksek görünür çünkü genelde zaten kazanılan maçlarda alınır; gerideyken ölürsen altın boşa gider.",
+            ),
+            "LUXURY_GOLD_WALL_TRAP": (
+                "Pahalı Lüks Eşya Duvarı Tuzağı",
+                "Savunma vermeyen 3400g+ eşyalar, altın gerisindeyken 2. ve 3. eşya güç patlamanı dakikalarca geciktirir.",
+            ),
+            "FLAT_PEN_EXECUTION_TRAP": (
+                "Sabit Delme / Bitiricilik Tuzağı",
+                "Rakipler zırh/büyü direnci çıktığında veya kombo atamadan eridiğinde sabit delmenin değeri hızla düşer.",
+            ),
+        },
+    },
+    "en": {
+        "states": {"behind": "Behind (Comeback / Tempo)", "even": "Even (Balanced Standard)", "ahead": "Ahead (Snowball / Carry)"},
+        "rules": {
+            "behind": "Skip risky stacking or 3500g+ luxury walls; spike earlier with affordable %Penetration, Ability Haste, and survival anchors.",
+            "even": "Follow standard power-curve efficiency mixing core spikes, penetration, and balanced defense.",
+            "ahead": "Accelerate your lead with multiplier capstones, flat penetration, and high-ceiling snowball items.",
+        },
+        "risk": {"HIGH": "HIGH RISK", "MODERATE": "MODERATE RISK"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": (
+                "Win-More Stacking Trap",
+                "Inflates win-rate on stat sites due to survivorship bias; dying from behind destroys stack gold value.",
+            ),
+            "LUXURY_GOLD_WALL_TRAP": (
+                "Luxury Gold-Wall Trap",
+                "Zero-defense 3400g+ items stall your 2nd/3rd item power spike when behind on income.",
+            ),
+            "FLAT_PEN_EXECUTION_TRAP": (
+                "Flat-Pen Bias Trap",
+                "Flat penetration drops off sharply once targets build resistances or threaten burst first.",
+            ),
+        },
+    },
+    "de": {
+        "states": {"behind": "Zurückliegend (Comeback)", "even": "Ausgeglichen (Standard)", "ahead": "Vorne (Snowball)"},
+        "rules": {
+            "behind": "Teure 3500g-Items meiden; günstiger mit %Durchdringung, Eile und Überleben skalieren.",
+            "even": "Standard-Power-Curve aus Kern-Spikes und ausgewogener Verteidigung.",
+            "ahead": "Vorsprung mit Multiplikator-Items und Snowball-Spitzen ausbauen.",
+        },
+        "risk": {"HIGH": "HOHES RISIKO", "MODERATE": "MITTLERES RISIKO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Snowball-Stacking-Falle", "Hohe Winrate nur durch Führung; verliert Wert bei Rückstand."),
+            "LUXURY_GOLD_WALL_TRAP": ("Luxus-Goldmauer-Falle", "Sehr teure Items ohne Abwehr verzögern deinen Spike."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Flat-Pen-Falle", "Verliert gegen frühe Resistenzen stark an Wirkung."),
+        },
+    },
+    "es": {
+        "states": {"behind": "Por Detrás (Remontada)", "even": "Igualado (Estándar)", "ahead": "Por Delante (Snowball)"},
+        "rules": {
+            "behind": "Evita muros de 3500g+; prioriza penetración porcentual barata, aceleración y supervivencia.",
+            "even": "Curva de poder equilibrada entre daño base, penetración y defensa.",
+            "ahead": "Acelera la ventaja con multiplicadores altos y objetos de snowball.",
+        },
+        "risk": {"HIGH": "ALTO RIESGO", "MODERATE": "RIESGO MODERADO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Trampa de Cargas Win-More", "Tasa de victoria inflada por ventaja previa; arriesgada al ir detrás."),
+            "LUXURY_GOLD_WALL_TRAP": ("Trampa de Muro de Oro", "Objetos muy caros sin defensa retrasan tu pico de poder."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Trampa de Penetración Plana", "Pierde valor si el rival arma armadura/resistencia mágica."),
+        },
+    },
+    "fr": {
+        "states": {"behind": "En Retard (Comeback)", "even": "Équilibré (Standard)", "ahead": "En Avance (Snowball)"},
+        "rules": {
+            "behind": "Évitez les objets à 3500g+ sans défense; accélérez votre pic avec pénétration % et survie.",
+            "even": "Courbe de puissance équilibrée entre pics principaux et défense.",
+            "ahead": "Creusez l'écart avec des multiplicateurs et objets de snowball.",
+        },
+        "risk": {"HIGH": "RISQUE ÉLEVÉ", "MODERATE": "RISQUE MODÉRÉ"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Piège à Stacks Win-More", "Taux de victoire gonflé par biais de survie; risqué en retard."),
+            "LUXURY_GOLD_WALL_TRAP": ("Piège Coût Élevé", "Un objet très cher sans défense retarde votre pic d'objets."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Piège Pénétration Fixe", "Efficacité réduite dès que l'ennemi achète des résistances."),
+        },
+    },
+    "it": {
+        "states": {"behind": "In Svantaggio (Comeback)", "even": "In Pari (Standard)", "ahead": "In Vantaggio (Snowball)"},
+        "rules": {
+            "behind": "Evita muri da 3500g+; anticipa il picco con penetrazione %, velocità abilità e difesa.",
+            "even": "Curva di potenza bilanciata tra picchi chiave e difese.",
+            "ahead": "Massimizza il vantaggio con moltiplicatori e oggetti da snowball.",
+        },
+        "risk": {"HIGH": "ALTO RISCHIO", "MODERATE": "RISCHIO MEDIO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Trappola da Snowball", "Win-rate gonfiato da partite già vinte; rischioso in svantaggio."),
+            "LUXURY_GOLD_WALL_TRAP": ("Trappola Oro Elevato", "Oggetti costosi senza difese ritardano il power spike."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Trappola Penetrazione Fissa", "Cala contro nemici con resistenze o forte burst."),
+        },
+    },
+    "pt": {
+        "states": {"behind": "Atrás (Virada / Tempo)", "even": "Equilibrado (Padrão)", "ahead": "Na Frente (Snowball)"},
+        "rules": {
+            "behind": "Evite itens caros de 3500g+; antecipe seu pico com penetração %, aceleração e defesa.",
+            "even": "Curva padrão equilibrando picos principais, penetração e defesa.",
+            "ahead": "Amplie a vantagem com multiplicadores e itens de snowball.",
+        },
+        "risk": {"HIGH": "ALTO RISCO", "MODERATE": "RISCO MODERADO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Armadilha de Acúmulos", "Taxa de vitória inflada ao já estar na frente; arriscado atrás."),
+            "LUXURY_GOLD_WALL_TRAP": ("Armadilha de Custo Alto", "Itens caros sem defesa atrasam seu pico no meio de jogo."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Armadilha de Penetração Fixa", "Perde eficiência contra resistências ou ameaças de burst."),
+        },
+    },
+    "pl": {
+        "states": {"behind": "W Tyle (Comeback)", "even": "Równo (Standard)", "ahead": "Na Prowadzeniu (Snowball)"},
+        "rules": {
+            "behind": "Omiń drogie przedmioty 3500g+; wybierz tańszą penetrację % i przeżywalność.",
+            "even": "Zrównoważona krzywa mocy łącząca rdzeń i obronę.",
+            "ahead": "Przyspiesz przewagę mnożnikami obrażeń i śnieżną kulą.",
+        },
+        "risk": {"HIGH": "WYSOKIE RYZYKO", "MODERATE": "ŚREDNIE RYZYKO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Pułapka Snowballa", "Zawyżony winrate z wygranych gier; ryzykowna w tyle."),
+            "LUXURY_GOLD_WALL_TRAP": ("Pułapka Drogiego Zakupu", "Kosztowny przedmiot bez obrony opóźnia skok mocy."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Pułapka Płaskiej Penetracji", "Traci moc przeciwko odpornościom wroga."),
+        },
+    },
+    "ru": {
+        "states": {"behind": "Отставание (Камбэк)", "even": "Равная игра (Стандарт)", "ahead": "Преимущество (Сноуболл)"},
+        "rules": {
+            "behind": "Избегайте дорогих предметов 3500g+; берите доступное %пробивание, ускорение и защиту.",
+            "even": "Сбалансированная кривая силы между уроном и защитой.",
+            "ahead": "Ускоряйте победу множителями урона и сноуболл-предметами.",
+        },
+        "risk": {"HIGH": "ВЫСОКИЙ РИСК", "MODERATE": "СРЕДНИЙ РИСК"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Ловушка стаков сноуболла", "Винрейт завышен из-за покупки при победе; невыгодно при отставании."),
+            "LUXURY_GOLD_WALL_TRAP": ("Ловушка дорогого предмета", "Дорогие предметы без защиты задерживают ваш силовой пик."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Ловушка плоского пробивания", "Теряет ценность при появлении брони и сопротивления у врага."),
+        },
+    },
+    "cs": {
+        "states": {"behind": "Pozadu (Comeback)", "even": "Vyrovnaně (Standard)", "ahead": "Napřed (Snowball)"},
+        "rules": {
+            "behind": "Vyhni se drahým předmětům 3500g+; zvol levnější %průraznost a obranu.",
+            "even": "Vyvážená křivka síly se standardními jádry.",
+            "ahead": "Navyš náskok násobiteli poškození a snowball předměty.",
+        },
+        "risk": {"HIGH": "VYSOKÉ RIZIKO", "MODERATE": "STŘEDNÍ RIZIKO"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Past Snowball Stacků", "Zkreslený winrate z vyhraných her; riskantní pozadu."),
+            "LUXURY_GOLD_WALL_TRAP": ("Past Drahého Předmětu", "Drahý předmět bez obrany zdržuje power spike."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Past Ploché Průraznosti", "Ztrácí sílu proti nepřátelským rezistencím."),
+        },
+    },
+    "el": {
+        "states": {"behind": "Πίσω (Comeback)", "even": "Ισορροπημένα (Πρότυπο)", "ahead": "Μπροστά (Snowball)"},
+        "rules": {
+            "behind": "Αποφύγετε ακριβά αντικείμενα 3500g+· προτιμήστε οικονομική διάτρηση % και επιβίωση.",
+            "even": "Τυπική ισορροπημένη καμπύλη ισχύος.",
+            "ahead": "Ενισχύστε το προβάδισμα με πολλαπλασιαστές ζημιάς.",
+        },
+        "risk": {"HIGH": "ΥΨΗΛΟ ΡΙΣΚΟ", "MODERATE": "ΜΕΤΡΙΟ ΡΙΣΚΟ"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Παγίδα Win-Rate Στοίβαξης", "Υψηλό winrate μόνο όταν είστε ήδη μπροστά."),
+            "LUXURY_GOLD_WALL_TRAP": ("Παγίδα Υψηλού Κόστους", "Ακριβά αντικείμενα χωρίς άμυνα καθυστερούν το spike."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Παγίδα Σταθερής Διάτρησης", "Χάνει αξία απέναντι σε αντιστάσεις."),
+        },
+    },
+    "hu": {
+        "states": {"behind": "Hátrányban (Comeback)", "even": "Kiegyenlített (Alap)", "ahead": "Előnyben (Snowball)"},
+        "rules": {
+            "behind": "Kerüld a 3500g+ luxus tárgyakat; válassz olcsóbb %átütést és túlélést.",
+            "even": "Kiegyensúlyozott erőgörbe a fő tárgyakkal.",
+            "ahead": "Építsd tovább az előnyt sebzésszorzó tárgyakkal.",
+        },
+        "risk": {"HIGH": "MAGAS KOCKÁZAT", "MODERATE": "KÖZEPES KOCKÁZAT"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Snowball Csapda", "A statisztika torzít, mert előnyben veszik meg."),
+            "LUXURY_GOLD_WALL_TRAP": ("Drága Aranyfal Csapda", "Védelem nélküli drága tárgy késlelteti az erőcsúcsot."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Fix Átütés Csapda", "Ellenállás ellen gyorsan veszít értékéből."),
+        },
+    },
+    "ro": {
+        "states": {"behind": "În Urmă (Comeback)", "even": "Echilibrat (Standard)", "ahead": "În Față (Snowball)"},
+        "rules": {
+            "behind": "Evită obiectele de 3500g+; alege penetrare % accesibilă și supraviețuire.",
+            "even": "Curbă standard de putere și apărare echilibrată.",
+            "ahead": "Amplifică avantajul cu multiplicatori și snowball.",
+        },
+        "risk": {"HIGH": "RISC RIDICAT", "MODERATE": "RISC MODERAT"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Capcană Win-More", "Win-rate umflat din meciuri deja câștigate."),
+            "LUXURY_GOLD_WALL_TRAP": ("Capcană Cost Ridicat", "Obiectele scumpe fără apărare întârzie vârful de putere."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Capcană Penetrare Fixă", "Scade în eficiență contra rezistențelor."),
+        },
+    },
+    "ar": {
+        "states": {"behind": "متأخر (عودة / إيقاع)", "even": "متكافئ (قياسي)", "ahead": "متقدم (توسيع الفارق)"},
+        "rules": {
+            "behind": "تجنب عناصر 3500+ ذهب المكلفة؛ اعتمد الاختراق النسبي والبقاء على قيد الحياة.",
+            "even": "مسار قوة متوازن بين الضرر والدفاع.",
+            "ahead": "وسّع تفوقك بمضاعفات الضرر وعناصر السيطرة.",
+        },
+        "risk": {"HIGH": "مخاطرة عالية", "MODERATE": "مخاطرة متوسطة"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("فخ التراكم التضليلي", "نسبة الفوز مرتفعة لأنها تُشترى عند التقدم غالباً."),
+            "LUXURY_GOLD_WALL_TRAP": ("فخ التكلفة الباهظة", "العناصر الباهظة بلا دفاع تؤخر ذروة قوتك."),
+            "FLAT_PEN_EXECUTION_TRAP": ("فخ الاختراق الثابت", "يفقد فعاليته أمام دروع ومقاومة السحر."),
+        },
+    },
+    "ja": {
+        "states": {"behind": "劣勢 (立て直し / テンポ)", "even": "互角 (標準バランス)", "ahead": "優勢 (スノーボール)"},
+        "rules": {
+            "behind": "3500G以上の高額装備を避け、低コストの%貫通・スキルヘイスト・防御を優先。",
+            "even": "コア火力と耐久をバランス良く伸ばす標準ルート。",
+            "ahead": "倍率装備と固定貫通でリードを一気に押し切る構成。",
+        },
+        "risk": {"HIGH": "高リスク", "MODERATE": "中リスク"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("勝率バイアス罠 (スタック)", "有利時にのみ買われやすく勝率が過大表示されがちです。"),
+            "LUXURY_GOLD_WALL_TRAP": ("高額ゴールドの壁罠", "耐久なしの3400G+装備は不利時のパワースパイクを大きく遅らせます。"),
+            "FLAT_PEN_EXECUTION_TRAP": ("固定貫通偏重の罠", "敵が防御を積むと急激に価値が落ちます。"),
+        },
+    },
+    "ko": {
+        "states": {"behind": "불리함 (역전 / 템포)", "even": "반반 (표준 밸런스)", "ahead": "유리함 (스노우볼)"},
+        "rules": {
+            "behind": "3500G 이상 고가 코어 대신 가성비 %관통·스킬 가속·생존 코어로 타이밍을 당기세요.",
+            "even": "핵심 코어와 관통, 밸런스 방어를 조화시킨 표준 빌드.",
+            "ahead": "증폭 코어와 고정 관통으로 스노우볼을 굴려 게임을 빠르게 끝내세요.",
+        },
+        "risk": {"HIGH": "고위험 함정", "MODERATE": "주의 필요"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("승률 착시 스택 함정", "이미 이긴 게임에서만 구매해 통계 승률이 부풀려진 아이템입니다."),
+            "LUXURY_GOLD_WALL_TRAP": ("고가 코어 골드 장벽", "방어 스탯 없는 3400G+ 코어는 불리할 때 2~3코어 타이밍을 늦춥니다."),
+            "FLAT_PEN_EXECUTION_TRAP": ("고정 관통 편중 함정", "적이 방어/마저를 올리면 효율이 급감합니다."),
+        },
+    },
+    "zh-TW": {
+        "states": {"behind": "逆風 (止損 / 節奏)", "even": "均勢 (標準平衡)", "ahead": "順風 (滾雪球)"},
+        "rules": {
+            "behind": "避開 3500G+ 高價裝，優先便宜的百分比穿透、技能疾速與保命裝。",
+            "even": "兼顧核心爆發與防禦的標準出裝節奏。",
+            "ahead": "以增幅裝與固定穿透擴大領先快速結束遊戲。",
+        },
+        "risk": {"HIGH": "高風險陷阱", "MODERATE": "中度風險"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("勝率倖存者偏差陷阱", "多半在順風才購買導致數據虛高，逆風陣亡極虧。"),
+            "LUXURY_GOLD_WALL_TRAP": ("高價豪華裝門檻陷阱", "無防禦的高價大裝會拖延逆風時期的強勢期。"),
+            "FLAT_PEN_EXECUTION_TRAP": ("固定穿透陷阱", "敵方撐起雙防後收益大幅下降。"),
+        },
+    },
+    "th": {
+        "states": {"behind": "เสียเปรียบ (คัมแบ็ก)", "even": "สูสี (มาตรฐาน)", "ahead": "ได้เปรียบ (สโนว์บอล)"},
+        "rules": {
+            "behind": "เลี่ยงไอเทมแพง 3500g+ เน้นเจาะเกราะ % ราคาคุ้มค่าและไอเทมเอาตัวรอด",
+            "even": "สมดุลระหว่างดาเมจหลักและการป้องกัน",
+            "ahead": "เร่งความได้เปรียบด้วยไอเทมตัวคูณและสโนว์บอล",
+        },
+        "risk": {"HIGH": "เสี่ยงสูง", "MODERATE": "เสี่ยงปานกลาง"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("กับดัก Win-Rate สะสมแต้ม", "Win-rate สูงเพราะมักซื้อตอนนำอยู่แล้ว"),
+            "LUXURY_GOLD_WALL_TRAP": ("กับดักไอเทมราคาแพง", "ไอเทมแพงที่ไร้การป้องกันทำให้ power spike ช้าลง"),
+            "FLAT_PEN_EXECUTION_TRAP": ("กับดักเจาะเกราะคงที่", "ลดประสิทธิภาพเมื่อศัตรูออกเกราะ/ต้านทานเวท"),
+        },
+    },
+    "vi": {
+        "states": {"behind": "Thua Thiệt (Lật Kèo)", "even": "Cân Bằng (Chuẩn)", "ahead": "Dẫn Trước (Lăn Cầu Tuyết)"},
+        "rules": {
+            "behind": "Tránh trang bị đắt 3500g+; ưu tiên xuyên % giá rẻ, hồi kỹ năng và sinh tồn.",
+            "even": "Cân bằng chuẩn giữa sát thương lõi và phòng thủ.",
+            "ahead": "Tận dụng trang bị khuếch đại và xuyên giáp/kháng phép phẳng để kết thúc sớm.",
+        },
+        "risk": {"HIGH": "RỦI RO CAO", "MODERATE": "RỦI RO VỪA"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Bẫy Tích Số Win-More", "Tỷ lệ thắng bị thổi phồng do chỉ lên khi đang thắng."),
+            "LUXURY_GOLD_WALL_TRAP": ("Bẫy Trang Bị Quá Đắt", "Trang bị đắt thiếu phòng thủ làm chậm ngưỡng sức mạnh khi thua tiền."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Bẫy Xuyên Cố Định", "Giảm hiệu quả mạnh khi đối thủ lên kháng phép hoặc giáp."),
+        },
+    },
+    "id": {
+        "states": {"behind": "Tertinggal (Comeback)", "even": "Seimbang (Standar)", "ahead": "Unggul (Snowball)"},
+        "rules": {
+            "behind": "Hindari item mahal 3500g+; pilih penetrasi % terjangkau dan item bertahan.",
+            "even": "Kurva kekuatan standar antara damage inti dan pertahanan.",
+            "ahead": "Percepat keunggulan dengan item pengganda dan snowball.",
+        },
+        "risk": {"HIGH": "RISIKO TINGGI", "MODERATE": "RISIKO SEDANG"},
+        "traps": {
+            "STACKING_SNOWBALL_TRAP": ("Jebakan Stack Win-More", "Win-rate terlihat tinggi karena biasanya dibeli saat sudah menang."),
+            "LUXURY_GOLD_WALL_TRAP": ("Jebakan Item Mahal", "Item mahal tanpa pertahanan menunda power spike saat tertinggal."),
+            "FLAT_PEN_EXECUTION_TRAP": ("Jebakan Flat Pen", "Efektivitas turun tajam saat musuh membeli armor atau MR."),
+        },
+    },
+}
+
+
+def _localize_pivot_and_traps(
+    out: Dict[str, Any],
+    bkey: str,
+    items_map: Dict[str, str],
+) -> None:
+    """Translates winrate_trap_warnings and 3-way Ahead/Even/Behind pivot tree entries."""
+    bundle = PIVOT_AND_TRAP_I18N.get(bkey, PIVOT_AND_TRAP_I18N["en"])
+    states_map = bundle["states"]
+    rules_map = bundle["rules"]
+    risk_map = bundle["risk"]
+    traps_map = bundle["traps"]
+
+    for warn in out.get("winrate_trap_warnings") or []:
+        iid = str(warn.get("item_id") or "")
+        if iid in items_map:
+            warn["item_name"] = items_map[iid]
+        tcode = str(warn.get("trap_code") or "")
+        if tcode in traps_map:
+            warn["trap_title"], warn["trap_reason"] = traps_map[tcode]
+        rlevel = str(warn.get("risk_level") or "")
+        if rlevel in risk_map:
+            warn["risk_label"] = risk_map[rlevel]
+        alt = warn.get("comeback_alternative")
+        if isinstance(alt, dict):
+            aid = str(alt.get("item_id") or "")
+            if aid in items_map:
+                alt["name"] = items_map[aid]
+
+    pt = out.get("pivot_tree")
+    if isinstance(pt, dict):
+        active = str(pt.get("active_game_state") or "even")
+        pt["active_state_label"] = states_map.get(active, pt.get("active_state_label"))
+        pt["strategy_summary"] = rules_map.get(active, pt.get("strategy_summary"))
+        pivots = pt.get("pivots")
+        if isinstance(pivots, dict):
+            for skey, node in pivots.items():
+                if not isinstance(node, dict):
+                    continue
+                node["state_label"] = states_map.get(skey, node.get("state_label"))
+                node["tactical_rule"] = rules_map.get(skey, node.get("tactical_rule"))
+                for it in node.get("items") or []:
+                    iid = str(it.get("item_id") or "")
+                    if iid in items_map:
+                        it["name"] = items_map[iid]
+                for sw in node.get("swapped_in_items") or []:
+                    iid = str(sw.get("item_id") or "")
+                    if iid in items_map:
+                        sw["name"] = items_map[iid]

@@ -62,6 +62,10 @@ class RecommendBuildsRequest(BaseModel):
     game_map: Literal["sr", "aram", "swiftplay"] = Field(
         default="sr", description="Map or game mode (sr, aram, swiftplay)"
     )
+    game_state: Literal["even", "ahead", "behind"] = Field(
+        default="even",
+        description="In-game gold/tempo state (behind=comeback, even=balanced, ahead=snowball)",
+    )
     to_version: Optional[str] = Field(
         default=None, description="Optional target patch version (defaults to latest synced patch)"
     )
@@ -125,6 +129,10 @@ class PvELabRequest(BaseModel):
     )
     game_map: Literal["sr", "aram", "swiftplay"] = Field(
         default="sr", description="Map or game mode (sr, aram, swiftplay)"
+    )
+    game_state: Literal["even", "ahead", "behind"] = Field(
+        default="even",
+        description="In-game gold/tempo state (behind=comeback, even=balanced, ahead=snowball)",
     )
     to_version: Optional[str] = Field(
         default=None, description="Optional target patch version (defaults to latest synced patch)"
