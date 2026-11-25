@@ -5,7 +5,9 @@ import {
   CheckCircle2,
   Compass,
   Cpu,
+  Crosshair,
   Flame,
+  Gauge,
   Link2,
   Loader2,
   Map,
@@ -22,12 +24,17 @@ import type {
   AutoChampionDiffEntry,
   ChampionSummary,
   FeedbackSummaryResponse,
+  GameStateKey,
   MapKey,
+  PvELabReport,
   RecommendBuildsResponse,
   RecommendedVariation,
   RoleKey,
 } from '../types/api';
+import { AramModifiersBar } from './AramModifiersBar';
 import { ItemIcon } from './ItemIcon';
+import { PivotAndTrapsPanel } from './PivotAndTrapsPanel';
+import { PvELabDrawer } from './PvELabDrawer';
 import { VariationFeedbackBar } from './VariationFeedbackBar';
 
 interface AIBuildLabProps {
@@ -41,6 +48,9 @@ interface AIBuildLabProps {
   onChangeMap: (map: MapKey) => void;
   targetProfile: 'squishy' | 'bruiser' | 'tank';
   onChangeTarget: (profile: 'squishy' | 'bruiser' | 'tank') => void;
+  gameState: GameStateKey;
+  onChangeGameState: (state: GameStateKey) => void;
+  onSelectAndGenerateState: (state: GameStateKey) => void;
   onGenerate: () => void;
   isGenerating: boolean;
   response: RecommendBuildsResponse | null;
@@ -63,22 +73,35 @@ export function AIBuildLab({
   onChangeMap,
   targetProfile,
   onChangeTarget,
+  gameState,
+  onChangeGameState,
+  onSelectAndGenerateState,
   onGenerate,
   isGenerating,
   response,
   onApplyVariationToSimulator,
 }: AIBuildLabProps) {
-  const { t } = useLanguage();
+  const { locale, t } = useLanguage();
   const [champSearch, setChampSearch] = useState('');
   const [feedbackData, setFeedbackData] = useState<{
     key: string;
     summary: FeedbackSummaryResponse;
   } | null>(null);
+  const [openPveKey, setOpenPveKey] = useState<string | null>(null);
+  const [pveReports, setPveReports] = useState<Record<string, PvELabReport>>({});
+  const [pveLoadingKey, setPveLoadingKey] = useState<string | null>(null);
+  const [pveErrors, setPveErrors] = useState<Record<string, string>>({});
 
   const targets: { key: 'squishy' | 'bruiser' | 'tank'; label: string }[] = [
     { key: 'squishy', label: t.targetSquishy },
     { key: 'bruiser', label: t.targetBruiser },
     { key: 'tank', label: t.targetTank },
+  ];
+
+  const gameStates: { key: GameStateKey; label: string; hint: string }[] = [
+    { key: 'behind', label: t.stateBehind, hint: t.stateBehindHint },
+    { key: 'even', label: t.stateEven, hint: t.stateEvenHint },
+    { key: 'ahead', label: t.stateAhead, hint: t.stateAheadHint },
   ];
 
   const roles: { key: RoleKey | ''; label: string; hint: string }[] = [
@@ -189,6 +212,54 @@ export function AIBuildLab({
       cancelled = true;
     };
   }, [reportChampKey, reportToVersion]);
+
+  const handleTogglePveLab = (
+    pveKey: string,
+    variation: RecommendedVariation,
+    champKey: string,
+    role: RoleKey,
+    gameMap: MapKey,
+    stateKey: GameStateKey,
+    toVersion?: string
+  ) => {
+    if (openPveKey === pveKey) {
+      setOpenPveKey(null);
+      return;
+    }
+    setOpenPveKey(pveKey);
+    if (pveReports[pveKey] || pveLoadingKey === pveKey) {
+      return;
+    }
+    setPveLoadingKey(pveKey);
+    setPveErrors((prev) => {
+      const next = { ...prev };
+      delete next[pveKey];
+      return next;
+    });
+    api
+      .runPveLab({
+        champion_key: champKey,
+        item_ids: variation.items.map((it) => it.item_id),
+        keystone_key: variation.keystone.key,
+        role,
+        game_map: gameMap,
+        game_state: stateKey,
+        to_version: toVersion ?? null,
+        lang: locale,
+      })
+      .then((res) => {
+        setPveReports((prev) => ({ ...prev, [pveKey]: res.report }));
+      })
+      .catch((err) => {
+        setPveErrors((prev) => ({
+          ...prev,
+          [pveKey]: err instanceof Error ? err.message : String(err),
+        }));
+      })
+      .finally(() => {
+        setPveLoadingKey((cur) => (cur === pveKey ? null : cur));
+      });
+  };
 
   return (
     <div className="space-y-6">
@@ -355,6 +426,38 @@ export function AIBuildLab({
           </div>
         </div>
 
+        <div className="space-y-2">
+          <label className="text-xs font-semibold uppercase text-slate-400 flex items-center gap-1.5">
+            <Gauge className="w-3.5 h-3.5 text-cyan-400" /> {t.gameStateLabel}
+          </label>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {gameStates.map((gs) => {
+              const active = gameState === gs.key;
+              const activeClass =
+                gs.key === 'behind'
+                  ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-200'
+                  : gs.key === 'ahead'
+                    ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-200'
+                    : 'bg-purple-500/20 border-purple-500/60 text-purple-200';
+              return (
+                <button
+                  key={gs.key}
+                  type="button"
+                  onClick={() => onChangeGameState(gs.key)}
+                  className={`px-3 py-2 rounded-lg border text-start transition cursor-pointer ${
+                    active
+                      ? activeClass
+                      : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="text-xs font-semibold">{gs.label}</div>
+                  <div className="text-[10px] opacity-80">{gs.hint}</div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="flex justify-end">
           <button
             type="button"
@@ -438,6 +541,11 @@ export function AIBuildLab({
               </div>
             )}
 
+            <AramModifiersBar
+              modifiers={report.aram_modifiers ?? report.game_context?.aram_modifiers}
+              gameMap={report.game_context?.game_map ?? selectedMap}
+            />
+
             {report.ai_summary && (
               <p className="text-sm text-slate-200 leading-relaxed bg-slate-950/70 border border-slate-800 rounded-lg p-3.5">
                 {report.ai_summary}
@@ -475,6 +583,14 @@ export function AIBuildLab({
             )}
           </div>
 
+          <PivotAndTrapsPanel
+            warnings={report.winrate_trap_warnings ?? report.pivot_tree?.winrate_trap_warnings ?? []}
+            pivotTree={report.pivot_tree}
+            activeGameState={report.game_state ?? gameState}
+            isGenerating={isGenerating}
+            onSelectAndGenerateState={onSelectAndGenerateState}
+          />
+
           <div className="grid grid-cols-1 gap-5">
             {report.variations.map((v) => {
               const ai = v.ai_review;
@@ -483,6 +599,9 @@ export function AIBuildLab({
               const rp = v.rune_page;
               const resolvedRole: RoleKey = report.game_context?.role ?? 'mid';
               const resolvedMap: MapKey = report.game_context?.game_map ?? 'sr';
+              const resolvedState: GameStateKey = report.game_state ?? gameState;
+              const pveKey = `${locale}:${report.champion_key}:${report.to_version}:${resolvedRole}:${resolvedMap}:${resolvedState}:${v.playstyle}:${v.rank}`;
+              const isPveOpen = openPveKey === pveKey;
 
               return (
                 <div
@@ -543,6 +662,28 @@ export function AIBuildLab({
                       <button
                         type="button"
                         onClick={() =>
+                          handleTogglePveLab(
+                            pveKey,
+                            v,
+                            report.champion_key,
+                            resolvedRole,
+                            resolvedMap,
+                            resolvedState,
+                            report.to_version
+                          )
+                        }
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                          isPveOpen
+                            ? 'bg-cyan-500/25 text-cyan-200 border-cyan-400/60'
+                            : 'bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border-cyan-500/40'
+                        }`}
+                      >
+                        <Crosshair className="w-3.5 h-3.5" />
+                        {isPveOpen ? t.pveLabCloseBtn : t.pveLabOpenBtn}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
                           onApplyVariationToSimulator(
                             v,
                             report.champion_key,
@@ -556,6 +697,14 @@ export function AIBuildLab({
                       </button>
                     </div>
                   </div>
+
+                  {isPveOpen && (
+                    <PvELabDrawer
+                      report={pveReports[pveKey] ?? null}
+                      isLoading={pveLoadingKey === pveKey}
+                      error={pveErrors[pveKey] ?? null}
+                    />
+                  )}
 
                   <div className="space-y-1.5">
                     <div className="text-[11px] font-semibold uppercase text-slate-400">

@@ -12,6 +12,7 @@ import {
 import { BarChart3, Clock, Flame, Zap } from 'lucide-react';
 import type { SimulateResponse } from '../types/api';
 import { useLanguage } from '../i18n/LanguageContext';
+import { AramModifiersBar } from './AramModifiersBar';
 
 interface SimulationChartsProps {
   simResponse: SimulateResponse;
@@ -54,6 +55,11 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
           {cached ? t.fastCacheBadge : t.liveCalcBadge}
         </span>
       </div>
+
+      <AramModifiersBar
+        modifiers={result.game_context?.aram_modifiers}
+        gameMap={result.game_context?.game_map}
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="p-4 rounded-lg bg-slate-950 border border-slate-800">

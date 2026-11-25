@@ -4,12 +4,14 @@ import type {
   FeedbackCreateResponse,
   FeedbackSubmitPayload,
   FeedbackSummaryResponse,
+  GameStateKey,
   HealthResponse,
   ItemSummary,
   LatestPatchResponse,
   MapKey,
   ParsePatchResponse,
   PatchDiffsResponse,
+  PvELabResponse,
   RecommendBuildsResponse,
   RoleKey,
   SimulateResponse,
@@ -98,6 +100,7 @@ export const api = {
     target_profile: 'squishy' | 'bruiser' | 'tank';
     role?: RoleKey | null;
     game_map?: MapKey;
+    game_state?: GameStateKey;
     to_version?: string | null;
     use_ai?: boolean;
     lang?: string;
@@ -105,6 +108,21 @@ export const api = {
     request<RecommendBuildsResponse>('/recommend-builds', {
       method: 'POST',
       body: JSON.stringify({ use_ai: true, ...payload }),
+    }),
+
+  runPveLab: (payload: {
+    champion_key: string;
+    item_ids: string[];
+    keystone_key?: string | null;
+    role?: RoleKey;
+    game_map?: MapKey;
+    game_state?: GameStateKey;
+    to_version?: string | null;
+    lang?: string;
+  }) =>
+    request<PvELabResponse>('/pve-lab', {
+      method: 'POST',
+      body: JSON.stringify(payload),
     }),
 
   submitFeedback: (payload: FeedbackSubmitPayload) =>

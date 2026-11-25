@@ -138,6 +138,20 @@ export interface SimulateResponse {
 
 export type RoleKey = 'top' | 'jungle' | 'mid' | 'adc' | 'support';
 export type MapKey = 'sr' | 'aram' | 'swiftplay';
+export type GameStateKey = 'behind' | 'even' | 'ahead';
+
+export interface AramModifiers {
+  champion_key: string;
+  dmg_dealt: number;
+  dmg_taken: number;
+  healing: number;
+  shielding: number;
+  ability_haste: number;
+  total_as: number;
+  tenacity: number;
+  energyregen_mod: number;
+  has_modifiers: boolean;
+}
 
 export interface GameContext {
   role: RoleKey;
@@ -151,6 +165,7 @@ export interface GameContext {
   separate_boot_slot: boolean;
   total_item_slots: number;
   tier3_boots: boolean;
+  aram_modifiers?: AramModifiers | null;
 }
 
 export interface LatestPatchInfo {
@@ -335,6 +350,72 @@ export interface RecommendedVariation {
   } | null;
 }
 
+export type TrapCodeKey =
+  | 'STACKING_SNOWBALL_TRAP'
+  | 'LUXURY_GOLD_WALL_TRAP'
+  | 'FLAT_PEN_EXECUTION_TRAP';
+
+export interface ComebackAlternativeItem {
+  item_id: string;
+  name: string;
+  gold_total: number;
+  icon_url?: string | null;
+  gold_saved: number;
+}
+
+export interface WinrateTrapWarning {
+  item_id: string;
+  item_name: string;
+  gold_total: number;
+  icon_url?: string | null;
+  trap_code: TrapCodeKey;
+  risk_level: 'HIGH' | 'MODERATE';
+  risk_label?: string;
+  trap_title: string;
+  trap_reason: string;
+  comeback_alternative: ComebackAlternativeItem | null;
+}
+
+export interface PivotSwappedItem {
+  item_id: string;
+  name: string;
+  gold_total: number;
+  icon_url?: string | null;
+}
+
+export interface PivotStateNode {
+  game_state: GameStateKey;
+  state_label: string;
+  tactical_rule: string;
+  items: {
+    item_id: string;
+    name: string;
+    gold_total: number;
+    stats: Record<string, number>;
+    icon_url?: string | null;
+    buy_order?: number;
+    is_boot?: boolean;
+    slot_type?: 'legendary' | 'standard_boot' | 'tier3_boot' | 'role_quest_boot';
+  }[];
+  keystone_key: string;
+  total_gold: number;
+  gold_diff_vs_even: number;
+  lvl11_burst: number;
+  lvl18_burst: number;
+  lvl11_dps: number;
+  lvl18_dps: number;
+  avg_ehp_lvl11: number;
+  swapped_in_items: PivotSwappedItem[];
+}
+
+export interface PivotTreeReport {
+  active_game_state: GameStateKey;
+  active_state_label: string;
+  strategy_summary: string;
+  winrate_trap_warnings?: WinrateTrapWarning[];
+  pivots: Record<GameStateKey, PivotStateNode>;
+}
+
 export interface RecommendBuildsReport {
   champion_key: string;
   champion_name: string;
@@ -343,7 +424,9 @@ export interface RecommendBuildsReport {
   to_version: string;
   to_display_version?: string | null;
   target_profile: 'squishy' | 'bruiser' | 'tank';
+  game_state?: GameStateKey;
   game_context?: GameContext;
+  aram_modifiers?: AramModifiers | null;
   profile?: {
     kit_archetype_label?: string;
     patch_signals?: {
@@ -358,7 +441,74 @@ export interface RecommendBuildsReport {
     keystone: { key: string; label: string; tree: string };
     total_gold: number;
   } | null;
+  winrate_trap_warnings?: WinrateTrapWarning[];
+  pivot_tree?: PivotTreeReport | null;
   variations: RecommendedVariation[];
+}
+
+export interface WaveclearSpellEntry {
+  slot: 'Q' | 'W' | 'E';
+  name: string;
+  base_damage: number;
+  raw_damage: number;
+  cooldown: number;
+  scaling: Record<string, number>;
+}
+
+export interface WaveclearBreakpointRow {
+  minute: number;
+  champion_level: number;
+  caster_hp: number;
+  melee_hp: number;
+  cannon_hp: number;
+  primary_slot: 'Q' | 'W' | 'E';
+  primary_spell_name: string;
+  spell_damage: number;
+  item_proc_damage: number;
+  total_hit_damage: number;
+  can_oneshot_caster: boolean;
+  damage_margin: number;
+  scaling_stat: string | null;
+  scaling_stat_label?: string;
+  current_stat_value: number;
+  required_stat_value: number | null;
+  missing_stat_value: number;
+  full_wave_clear_sec: number;
+  spells: Record<string, WaveclearSpellEntry>;
+}
+
+export interface ObjectiveBenchmarkRow {
+  monster_key: 'dragon' | 'atakhan' | 'baron';
+  monster_name: string;
+  reference_level: number;
+  monster_hp: number;
+  armor: number;
+  mr: number;
+  sustained_dps: number;
+  solo_kill_time_sec: number;
+  speed_tier: 'FAST' | 'MODERATE' | 'SLOW';
+  speed_label: string;
+}
+
+export interface PvELabReport {
+  champion_key: string;
+  champion_name: string;
+  game_context?: GameContext;
+  aram_modifiers?: AramModifiers | null;
+  waveclear_breakpoints: WaveclearBreakpointRow[];
+  objective_benchmarks: ObjectiveBenchmarkRow[];
+  items: {
+    item_id: string;
+    name: string;
+    gold_total: number;
+    icon_url?: string | null;
+  }[];
+}
+
+export interface PvELabResponse {
+  cached: boolean;
+  cache_key: string;
+  report: PvELabReport;
 }
 
 export interface RecommendBuildsResponse {

@@ -8,6 +8,7 @@ import type {
   AutoRuneDiffEntry,
   ChampionPatchDiff,
   ChampionSummary,
+  GameStateKey,
   HealthResponse,
   ItemSummary,
   LatestPatchInfo,
@@ -71,6 +72,7 @@ export default function App() {
   const [labChampKey, setLabChampKey] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<RoleKey | ''>('');
   const [selectedMap, setSelectedMap] = useState<MapKey>('sr');
+  const [gameState, setGameState] = useState<GameStateKey>('even');
   const [isGeneratingBuilds, setIsGeneratingBuilds] = useState(false);
 
   // Locale-scoped states automatically clear previous-language outputs on language switch
@@ -182,8 +184,9 @@ export default function App() {
     }
   };
 
-  const handleGenerateRecommendations = async () => {
+  const handleGenerateRecommendations = async (overrideState?: GameStateKey) => {
     if (!labChampKey) return;
+    const activeState = overrideState ?? gameState;
     setError(null);
     setIsGeneratingBuilds(true);
     try {
@@ -192,6 +195,7 @@ export default function App() {
         target_profile: targetProfile,
         role: selectedRole || null,
         game_map: selectedMap,
+        game_state: activeState,
         to_version: latestPatch?.version ?? null,
         use_ai: true,
         lang: locale,
@@ -303,6 +307,7 @@ export default function App() {
         patch_diff: activeDiff,
         from_version: activeFromVersion,
         keystone_key: selectedKeystoneKey,
+        game_map: selectedMap,
         lang: locale,
         raw_patch_text:
           sourceMode === 'auto'
@@ -431,7 +436,16 @@ export default function App() {
               setTargetProfile(p);
               setRecommendState(null);
             }}
-            onGenerate={handleGenerateRecommendations}
+            gameState={gameState}
+            onChangeGameState={(st) => {
+              setGameState(st);
+              setRecommendState(null);
+            }}
+            onSelectAndGenerateState={(st) => {
+              setGameState(st);
+              void handleGenerateRecommendations(st);
+            }}
+            onGenerate={() => handleGenerateRecommendations()}
             isGenerating={isGeneratingBuilds}
             response={recommendResponse}
             onApplyVariationToSimulator={handleApplyVariationToSimulator}
