@@ -22,6 +22,8 @@ from app.schemas.api_schemas import (
     FeedbackSummaryResponse,
     ParsePatchRequest,
     ParsePatchResponse,
+    PvELabRequest,
+    PvELabResponse,
     RecommendBuildsRequest,
     RecommendBuildsResponse,
     SimulateRequest,
@@ -34,6 +36,7 @@ from app.services.locale_service import (
     get_ddragon_localization,
     localize_diff_payload,
     localize_game_context,
+    localize_pve_lab_report,
     localize_recommend_report,
     localize_target_label,
     localize_zero_day_radar,
@@ -44,6 +47,7 @@ from app.services.patch_sync_orchestrator import PatchSyncOrchestrator
 from app.services.sanity_checker import PatchSanityChecker
 from app.services.zero_day_oracle import ZeroDayOracleService
 from app.engine.combat_simulator import CombatSimulator
+from app.engine.pve_lab_engine import PvELabEngine
 
 router = APIRouter()
 
@@ -66,7 +70,7 @@ def _build_cache_key(req: SimulateRequest) -> str:
     }
     raw_str = json.dumps(canonical, sort_keys=True, ensure_ascii=False)
     digest = hashlib.sha256(raw_str.encode("utf-8")).hexdigest()[:24]
-    return f"patchdiff:sim:v2:{req.champion_key}:{digest}"
+    return f"patchdiff:sim:v3:{req.champion_key}:{digest}"
 
 
 def _load_known_champions(db: Session) -> dict[str, str] | None:
@@ -304,7 +308,7 @@ def get_zero_day_radar(
 
     riot_locale, _, _ = normalize_locale(lang)
     cache_key = (
-        f"patchdiff:radar:v1:{resolved_ver}:{target_profile}:{game_map}:{limit}:{riot_locale}"
+        f"patchdiff:radar:v2:{resolved_ver}:{target_profile}:{game_map}:{limit}:{riot_locale}"
     )
 
     try:
@@ -447,7 +451,7 @@ def recommend_builds(request: RecommendBuildsRequest, db: Session = Depends(get_
 
     riot_locale, _, _ = normalize_locale(request.lang)
     cache_key = (
-        f"patchdiff:rec:v7:{resolved_ver}:{request.champion_key}:"
+        f"patchdiff:rec:v8:{resolved_ver}:{request.champion_key}:"
         f"{request.target_profile}:{request.role or 'auto'}:{request.game_map}:{int(request.use_ai)}:{riot_locale}"
     )
 
@@ -503,6 +507,124 @@ def recommend_builds(request: RecommendBuildsRequest, db: Session = Depends(get_
         engine_used=engine_used,
         latency_ms=latency_ms,
         report=final_report,
+    )
+
+
+@router.post("/pve-lab", response_model=PvELabResponse, tags=["PvE & ARAM Lab"])
+def run_pve_lab(request: PvELabRequest, db: Session = Depends(get_db)):
+    """
+    Computes deterministic Minion Waveclear Breakpoints (Minutes 5, 9, 14) and
+    Epic Monster solo-kill speeds (Dragon, Atakhan, Baron Nashor), incorporating
+    official ARAM balance modifiers when game_map='aram'.
+    """
+    resolved_ver = request.to_version
+    if not resolved_ver:
+        latest = db.query(PatchVersion).filter_by(is_latest=True).first()
+        resolved_ver = latest.version if latest else "latest"
+
+    riot_locale, _, _ = normalize_locale(request.lang)
+    items_sig = ",".join(sorted(request.item_ids))
+    raw_sig = (
+        f"{resolved_ver}:{request.champion_key}:{items_sig}:{request.keystone_key or 'none'}:"
+        f"{request.role}:{request.game_map}:{riot_locale}"
+    )
+    digest = hashlib.sha256(raw_sig.encode("utf-8")).hexdigest()[:24]
+    cache_key = f"patchdiff:pve:v1:{request.champion_key}:{digest}"
+
+    try:
+        cached_raw = redis_client.get(cache_key)
+        if cached_raw:
+            return PvELabResponse(
+                cached=True,
+                cache_key=cache_key,
+                report=json.loads(cached_raw),
+            )
+    except Exception:
+        pass
+
+    champ_snap = (
+        db.query(ChampionSnapshot)
+        .filter_by(patch_version=resolved_ver, champion_key=request.champion_key)
+        .first()
+        if resolved_ver != "latest"
+        else None
+    )
+    if champ_snap:
+        champ_name = champ_snap.name
+        base_stats = champ_snap.base_stats or {}
+        abilities = champ_snap.abilities or {}
+    else:
+        champ_row = db.query(Champion).filter(Champion.key == request.champion_key).first()
+        if not champ_row:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Champion '{request.champion_key}' was not found in the database.",
+            )
+        champ_name = champ_row.name
+        base_stats = champ_row.base_stats or {}
+        abilities = champ_row.abilities or {}
+
+    build_items = []
+    if request.item_ids:
+        item_snaps = (
+            db.query(ItemSnapshot)
+            .filter(
+                ItemSnapshot.patch_version == resolved_ver,
+                ItemSnapshot.item_id.in_(request.item_ids),
+            )
+            .all()
+            if resolved_ver != "latest"
+            else []
+        )
+        if item_snaps:
+            build_items = [
+                {
+                    "item_id": i.item_id,
+                    "name": i.name,
+                    "gold_total": i.gold_total,
+                    "stats": i.stats or {},
+                    "icon_url": i.icon_url or build_item_icon_url(resolved_ver, i.item_id),
+                }
+                for i in item_snaps
+            ]
+        else:
+            item_rows = db.query(Item).filter(Item.item_id.in_(request.item_ids)).all()
+            build_items = [
+                {
+                    "item_id": i.item_id,
+                    "name": i.name,
+                    "gold_total": i.gold_total,
+                    "stats": i.stats or {},
+                    "icon_url": None,
+                }
+                for i in item_rows
+            ]
+
+    raw_report = PvELabEngine.evaluate(
+        champion_key=request.champion_key,
+        champion_name=champ_name,
+        base_stats=base_stats,
+        abilities=abilities,
+        items=build_items,
+        keystone_key=request.keystone_key,
+        role=request.role,
+        game_map=request.game_map,
+    )
+    localized_report = localize_pve_lab_report(
+        raw_report,
+        lang=riot_locale,
+        version=resolved_ver if resolved_ver != "latest" else None,
+    )
+
+    try:
+        redis_client.setex(cache_key, CACHE_TTL_SECONDS, json.dumps(localized_report, ensure_ascii=False))
+    except Exception:
+        pass
+
+    return PvELabResponse(
+        cached=False,
+        cache_key=cache_key,
+        report=localized_report,
     )
 
 

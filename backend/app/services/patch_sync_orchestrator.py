@@ -5,6 +5,7 @@ from typing import Any, Dict
 from sqlalchemy.orm import Session
 
 from app.models.entities import AutoPatchDiff, PatchVersion
+from app.services.aram_balance_service import AramBalanceService
 from app.services.cdragon_enricher import CDragonEnricherService
 from app.services.ddragon_sync import DDragonSyncService
 from app.services.patch_diff_engine import PatchDiffEngine
@@ -95,6 +96,11 @@ class PatchSyncOrchestrator:
             diff_summary: Dict[str, Any] = {"champions_changed": 0, "items_changed": 0, "total": 0}
             if len(synced_versions) >= 2:
                 diff_summary = PatchDiffEngine.compute_latest_diffs(db)
+
+            try:
+                AramBalanceService.refresh_aram_overrides_file()
+            except Exception as exc:
+                logger.warning("Non-fatal error while refreshing ARAM overrides: %s", exc)
 
             latest_row = db.query(PatchVersion).filter_by(is_latest=True).first()
             return {

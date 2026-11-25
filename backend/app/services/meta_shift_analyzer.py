@@ -12,6 +12,7 @@ from app.models.entities import (
     PatchVersion,
     Rune,
 )
+from app.services.aram_balance_service import AramBalanceService
 
 
 def _snapshot_items_to_dicts(rows: List[ItemSnapshot]) -> List[Dict[str, Any]]:
@@ -277,6 +278,7 @@ class MetaShiftAnalyzer:
             "to_display_version": to_display_version(to_version),
             "target_profile": target_profile_key,
             "game_context": game_context,
+            "aram_modifiers": AramBalanceService.get_champion_aram_modifiers(champion_key),
             "profile": profile,
             "champion_changed_in_patch": champion_patch_diff is not None,
             "champion_patch_diff": champion_patch_diff,

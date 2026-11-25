@@ -1048,3 +1048,150 @@ def localize_zero_day_radar(
         _loc_entry(sc.get("top_myth"))
 
     return out
+
+
+PVE_LAB_I18N: Dict[str, Dict[str, Any]] = {
+    "tr": {
+        "monsters": {"dragon": "Elemental Ejderha", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Çok Hızlı", "MODERATE": "Orta Hız", "SLOW": "Yavaş"},
+        "stats": {"ap": "Yetenek Gücü (AP)", "bonus_ad": "İlave AD", "total_ad": "Toplam AD"},
+    },
+    "en": {
+        "monsters": {"dragon": "Elemental Dragon", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Fast", "MODERATE": "Moderate", "SLOW": "Slow"},
+        "stats": {"ap": "AP", "bonus_ad": "Bonus AD", "total_ad": "Total AD"},
+    },
+    "de": {
+        "monsters": {"dragon": "Elementardrache", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Schnell", "MODERATE": "Mittel", "SLOW": "Langsam"},
+        "stats": {"ap": "Fähigkeitsstärke (AP)", "bonus_ad": "Bonus-AD", "total_ad": "Gesamt-AD"},
+    },
+    "es": {
+        "monsters": {"dragon": "Dragón Elemental", "atakhan": "Atakhan", "baron": "Barón Nashor"},
+        "tiers": {"FAST": "Rápido", "MODERATE": "Moderado", "SLOW": "Lento"},
+        "stats": {"ap": "Poder de Habilidad (AP)", "bonus_ad": "AD Adicional", "total_ad": "AD Total"},
+    },
+    "fr": {
+        "monsters": {"dragon": "Dragon élémentaire", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Rapide", "MODERATE": "Modéré", "SLOW": "Lent"},
+        "stats": {"ap": "Puissance (AP)", "bonus_ad": "AD bonus", "total_ad": "AD total"},
+    },
+    "it": {
+        "monsters": {"dragon": "Drago Elementale", "atakhan": "Atakhan", "baron": "Barone Nashor"},
+        "tiers": {"FAST": "Veloce", "MODERATE": "Moderato", "SLOW": "Lento"},
+        "stats": {"ap": "Potere Magico (AP)", "bonus_ad": "AD Bonus", "total_ad": "AD Totale"},
+    },
+    "pt": {
+        "monsters": {"dragon": "Dragão Elemental", "atakhan": "Atakhan", "baron": "Barão Na'Shor"},
+        "tiers": {"FAST": "Rápido", "MODERATE": "Moderado", "SLOW": "Lento"},
+        "stats": {"ap": "Poder de Habilidade (AP)", "bonus_ad": "AD Bônus", "total_ad": "AD Total"},
+    },
+    "pl": {
+        "monsters": {"dragon": "Smok Żywiołów", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Szybko", "MODERATE": "Średnio", "SLOW": "Wolno"},
+        "stats": {"ap": "Moc Umiejętności (AP)", "bonus_ad": "Dodatkowe AD", "total_ad": "Całkowite AD"},
+    },
+    "ru": {
+        "monsters": {"dragon": "Стихийный дракон", "atakhan": "Атахан", "baron": "Барон Нашор"},
+        "tiers": {"FAST": "Быстро", "MODERATE": "Средне", "SLOW": "Медленно"},
+        "stats": {"ap": "Сила умений (AP)", "bonus_ad": "Доп. AD", "total_ad": "Общая AD"},
+    },
+    "cs": {
+        "monsters": {"dragon": "Živelný drak", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Rychle", "MODERATE": "Středně", "SLOW": "Pomalu"},
+        "stats": {"ap": "Síla schopností (AP)", "bonus_ad": "Bonusové AD", "total_ad": "Celkové AD"},
+    },
+    "el": {
+        "monsters": {"dragon": "Στοιχειακός Δράκος", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Γρήγορα", "MODERATE": "Μέτρια", "SLOW": "Αργά"},
+        "stats": {"ap": "AP", "bonus_ad": "Μπόνους AD", "total_ad": "Συνολικό AD"},
+    },
+    "hu": {
+        "monsters": {"dragon": "Elemi Sárkány", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Gyors", "MODERATE": "Közepes", "SLOW": "Lassú"},
+        "stats": {"ap": "Varázserő (AP)", "bonus_ad": "Bónusz AD", "total_ad": "Teljes AD"},
+    },
+    "ro": {
+        "monsters": {"dragon": "Dragon Elemental", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Rapid", "MODERATE": "Moderat", "SLOW": "Lent"},
+        "stats": {"ap": "AP", "bonus_ad": "AD Bonus", "total_ad": "AD Total"},
+    },
+    "ar": {
+        "monsters": {"dragon": "تنين العناصر", "atakhan": "أتاخان", "baron": "بارون ناشور"},
+        "tiers": {"FAST": "سريع", "MODERATE": "متوسط", "SLOW": "بطيء"},
+        "stats": {"ap": "قوة القدرة (AP)", "bonus_ad": "AD إضافي", "total_ad": "إجمالي AD"},
+    },
+    "ja": {
+        "monsters": {"dragon": "エレメンタルドレイク", "atakhan": "アタカン", "baron": "バロンナッシャー"},
+        "tiers": {"FAST": "高速", "MODERATE": "標準", "SLOW": "低速"},
+        "stats": {"ap": "魔力 (AP)", "bonus_ad": "増加AD", "total_ad": "合計AD"},
+    },
+    "ko": {
+        "monsters": {"dragon": "원소 드래곤", "atakhan": "아타칸", "baron": "내셔 남작"},
+        "tiers": {"FAST": "매우 빠름", "MODERATE": "보통", "SLOW": "느림"},
+        "stats": {"ap": "주문력 (AP)", "bonus_ad": "추가 공격력", "total_ad": "총 공격력"},
+    },
+    "zh-TW": {
+        "monsters": {"dragon": "元素飛龍", "atakhan": "亞塔坎", "baron": "巴龍納什"},
+        "tiers": {"FAST": "快速", "MODERATE": "中等", "SLOW": "緩慢"},
+        "stats": {"ap": "魔法攻擊 (AP)", "bonus_ad": "額外物攻", "total_ad": "總物攻"},
+    },
+    "th": {
+        "monsters": {"dragon": "มังกรธาตุ", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "เร็วมาก", "MODERATE": "ปานกลาง", "SLOW": "ช้า"},
+        "stats": {"ap": "พลังเวท (AP)", "bonus_ad": "โบนัส AD", "total_ad": "AD รวม"},
+    },
+    "vi": {
+        "monsters": {"dragon": "Rồng Nguyên Tố", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Nhanh", "MODERATE": "Trung bình", "SLOW": "Chậm"},
+        "stats": {"ap": "Sức mạnh phép thuật (AP)", "bonus_ad": "SMCK Cộng thêm", "total_ad": "Tổng SMCK"},
+    },
+    "id": {
+        "monsters": {"dragon": "Elemental Dragon", "atakhan": "Atakhan", "baron": "Baron Nashor"},
+        "tiers": {"FAST": "Cepat", "MODERATE": "Sedang", "SLOW": "Lambat"},
+        "stats": {"ap": "AP", "bonus_ad": "Bonus AD", "total_ad": "Total AD"},
+    },
+}
+
+
+def localize_pve_lab_report(
+    report: Dict[str, Any],
+    lang: Optional[str],
+    version: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Localizes PvE Waveclear, Epic Monster Benchmarks, ARAM context, and items across all 25 LoL locales."""
+    riot_locale, bkey, _ = normalize_locale(lang)
+    out = copy.deepcopy(report)
+    out["game_context"] = localize_game_context(out.get("game_context"), riot_locale)
+
+    loc = get_ddragon_localization(version, riot_locale) or {}
+    champs_map = loc.get("champions") or {}
+    items_map = loc.get("items") or {}
+
+    ckey = out.get("champion_key")
+    if ckey and ckey in champs_map:
+        out["champion_name"] = champs_map[ckey].get("name", out.get("champion_name"))
+
+    for it in out.get("items") or []:
+        iid = str(it.get("item_id") or "")
+        if iid in items_map:
+            it["name"] = items_map[iid]
+
+    bundle = PVE_LAB_I18N.get(bkey, PVE_LAB_I18N["en"])
+    stats_map = bundle["stats"]
+    monsters_map = bundle["monsters"]
+    tiers_map = bundle["tiers"]
+
+    for row in out.get("waveclear_breakpoints") or []:
+        s_key = str(row.get("scaling_stat") or "")
+        row["scaling_stat_label"] = stats_map.get(s_key, s_key.upper() if s_key else "-")
+
+    for mon in out.get("objective_benchmarks") or []:
+        mkey = str(mon.get("monster_key") or "")
+        if mkey in monsters_map:
+            mon["monster_name"] = monsters_map[mkey]
+        tkey = str(mon.get("speed_tier") or "")
+        if tkey in tiers_map:
+            mon["speed_label"] = tiers_map[tkey]
+
+    return out

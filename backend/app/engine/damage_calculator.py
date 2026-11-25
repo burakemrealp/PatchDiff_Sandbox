@@ -145,10 +145,11 @@ class DamageCalculator:
     ) -> np.ndarray:
         """
         Riot Games Ability Haste formula:
-        Effective Cooldown = Base Cooldown / (1 + Ability_Haste / 100)
+        Effective Cooldown = Base Cooldown / (1 + Ability_Haste / 100),
+        clamping the divisor at 0.25 to support negative ARAM Ability Haste safely.
         """
-        haste = np.maximum(0.0, ability_haste)
-        return np.where(base_cooldown > 0.0, base_cooldown / (1.0 + haste / 100.0), 0.0)
+        divisor = np.maximum(0.25, 1.0 + ability_haste / 100.0)
+        return np.where(base_cooldown > 0.0, base_cooldown / divisor, 0.0)
 
     @classmethod
     def compute_expected_aa_damage(

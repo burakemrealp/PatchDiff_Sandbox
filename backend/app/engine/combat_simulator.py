@@ -5,6 +5,7 @@ from app.engine.stat_aggregator import StatAggregator
 from app.engine.damage_calculator import DamageCalculator, get_target_profile_vectors
 from app.engine.game_rules import resolve_effective_rules
 from app.engine.passive_and_rune_engine import PassiveAndRuneEngine
+from app.services.aram_balance_service import AramBalanceService
 
 
 class CombatSimulator:
@@ -26,12 +27,20 @@ class CombatSimulator:
         keystone_key: Optional[str] = None,
         role: str = "mid",
         game_map: str = "sr",
+        aram_modifiers_override: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         items = items or []
-        rules = resolve_effective_rules(role=role, game_map=game_map)
+        rules = dict(resolve_effective_rules(role=role, game_map=game_map))
         n_levels = int(rules["max_level"])
         target = get_target_profile_vectors(target_profile_key, n_levels)
         target_hp_vec = target["hp"]
+
+        aram_mods: Optional[Dict[str, Any]] = None
+        if rules["game_map"] == "aram":
+            aram_mods = aram_modifiers_override or AramBalanceService.get_champion_aram_modifiers(champion_key)
+            rules["aram_modifiers"] = aram_mods
+        else:
+            rules["aram_modifiers"] = None
 
         # 1. Compute pre-patch and post-patch stat vectors (Levels 1..18, or 1..20 for Top)
         old_stat_vecs = StatAggregator.compute_level_vectors(base_stats, items, max_level=n_levels)
@@ -41,6 +50,16 @@ class CombatSimulator:
         # Apply in-combat stat-granting keystones (e.g., Conqueror, Lethal Tempo)
         old_stat_vecs = PassiveAndRuneEngine.apply_precombat_rune_stats(old_stat_vecs, keystone_key)
         new_stat_vecs = PassiveAndRuneEngine.apply_precombat_rune_stats(new_stat_vecs, keystone_key)
+
+        # Apply ARAM-specific champion Ability Haste & Attack Speed modifiers
+        if aram_mods:
+            aram_ah = float(aram_mods.get("ability_haste", 0.0))
+            aram_as_mult = max(0.5, float(aram_mods.get("total_as", 1.0)))
+            for sv in (old_stat_vecs, new_stat_vecs):
+                if abs(aram_ah) > 1e-4:
+                    sv["ability_haste"] = np.round(sv["ability_haste"] + aram_ah, 2)
+                if abs(aram_as_mult - 1.0) > 1e-4:
+                    sv["attack_speed"] = np.round(np.minimum(2.5, sv["attack_speed"] * aram_as_mult), 3)
 
         # 2. Build pre-patch and post-patch ability dictionaries
         old_abilities = base_abilities
@@ -135,6 +154,23 @@ class CombatSimulator:
         old_dps += old_p_dps
         new_dps += new_p_dps
 
+        # Apply ARAM damage dealt, shielding, and damage taken balance multipliers
+        aram_dmg_dealt = float(aram_mods.get("dmg_dealt", 1.0)) if aram_mods else 1.0
+        aram_dmg_taken = max(0.5, float(aram_mods.get("dmg_taken", 1.0))) if aram_mods else 1.0
+        aram_shield_mult = max(0.5, float(aram_mods.get("shielding", 1.0))) if aram_mods else 1.0
+        if aram_mods:
+            if abs(aram_dmg_dealt - 1.0) > 1e-4:
+                old_burst = np.round(old_burst * aram_dmg_dealt, 2)
+                new_burst = np.round(new_burst * aram_dmg_dealt, 2)
+                old_dps = np.round(old_dps * aram_dmg_dealt, 2)
+                new_dps = np.round(new_dps * aram_dmg_dealt, 2)
+                for ab_entry in ability_breakdown.values():
+                    ab_entry["old_net_damage"] = [round(v * aram_dmg_dealt, 1) for v in ab_entry["old_net_damage"]]
+                    ab_entry["new_net_damage"] = [round(v * aram_dmg_dealt, 1) for v in ab_entry["new_net_damage"]]
+            if abs(aram_shield_mult - 1.0) > 1e-4:
+                old_ehp_bonus *= aram_shield_mult
+                new_ehp_bonus *= aram_shield_mult
+
         # 5. Compute Time to Kill (TTK) in seconds
         old_ttk = np.where(
             old_burst >= target_hp_vec,
@@ -151,13 +187,13 @@ class CombatSimulator:
         burst_delta_pct = ((new_burst - old_burst) / np.maximum(1.0, old_burst)) * 100.0
         dps_delta_pct = ((new_dps - old_dps) / np.maximum(1.0, old_dps)) * 100.0
 
-        # Compute Physical (Armor) and Magic (MR) Effective HP (including passive/rune shield modifiers)
-        ehp_old = old_stat_vecs["total_hp"] * (1.0 + old_stat_vecs["armor"] / 100.0) * (1.0 + old_ehp_bonus)
-        ehp_new = new_stat_vecs["total_hp"] * (1.0 + new_stat_vecs["armor"] / 100.0) * (1.0 + new_ehp_bonus)
+        # Compute Physical (Armor) and Magic (MR) Effective HP (including passive/rune shield & ARAM incoming dmg modifiers)
+        ehp_old = (old_stat_vecs["total_hp"] * (1.0 + old_stat_vecs["armor"] / 100.0) * (1.0 + old_ehp_bonus)) / aram_dmg_taken
+        ehp_new = (new_stat_vecs["total_hp"] * (1.0 + new_stat_vecs["armor"] / 100.0) * (1.0 + new_ehp_bonus)) / aram_dmg_taken
         ehp_delta_pct = ((ehp_new - ehp_old) / np.maximum(1.0, ehp_old)) * 100.0
 
-        magic_ehp_old = old_stat_vecs["total_hp"] * (1.0 + old_stat_vecs["mr"] / 100.0) * (1.0 + old_ehp_bonus)
-        magic_ehp_new = new_stat_vecs["total_hp"] * (1.0 + new_stat_vecs["mr"] / 100.0) * (1.0 + new_ehp_bonus)
+        magic_ehp_old = (old_stat_vecs["total_hp"] * (1.0 + old_stat_vecs["mr"] / 100.0) * (1.0 + old_ehp_bonus)) / aram_dmg_taken
+        magic_ehp_new = (new_stat_vecs["total_hp"] * (1.0 + new_stat_vecs["mr"] / 100.0) * (1.0 + new_ehp_bonus)) / aram_dmg_taken
         magic_ehp_delta_pct = ((magic_ehp_new - magic_ehp_old) / np.maximum(1.0, magic_ehp_old)) * 100.0
 
         # Build level 1..N time-series table for frontend charts

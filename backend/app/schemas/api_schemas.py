@@ -114,3 +114,25 @@ class ZeroDayRadarResponse(BaseModel):
     cache_key: str
     latency_ms: float
     radar: Dict[str, Any]
+
+
+class PvELabRequest(BaseModel):
+    champion_key: str = Field(..., description="Champion key (e.g., Ahri, Jinx, Zed, Ornn)")
+    item_ids: List[str] = Field(default_factory=list, description="Selected item IDs to test")
+    keystone_key: Optional[str] = Field(default=None, description="Optional keystone rune key")
+    role: Literal["top", "jungle", "mid", "adc", "support"] = Field(
+        default="mid", description="Lane role for Season 16 rules"
+    )
+    game_map: Literal["sr", "aram", "swiftplay"] = Field(
+        default="sr", description="Map or game mode (sr, aram, swiftplay)"
+    )
+    to_version: Optional[str] = Field(
+        default=None, description="Optional target patch version (defaults to latest synced patch)"
+    )
+    lang: str = Field(default="tr_TR", description="Official League of Legends locale code")
+
+
+class PvELabResponse(BaseModel):
+    cached: bool = Field(default=False, description="Whether the report was served from Redis cache")
+    cache_key: str
+    report: Dict[str, Any]
