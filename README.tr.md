@@ -1,6 +1,6 @@
 # PatchDiff Sandbox
 
-[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](README.md) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](#) [![Sürüm: v1.0.0](https://img.shields.io/badge/S%C3%BCr%C3%BCm-v1.0.0-10b981)](CHANGELOG.md) [![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-f59e0b)](LICENSE) [![Riot Uyumluluğu: Zero-Vanguard](https://img.shields.io/badge/Riot%20Uyumlulu%C4%9Fu-Zero--Vanguard-6366f1)](SECURITY.md)
+[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](README.md) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](#) [![Sürüm: v2.0.0](https://img.shields.io/badge/S%C3%BCr%C3%BCm-v2.0.0-10b981)](CHANGELOG.md) [![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-f59e0b)](LICENSE) [![Riot Uyumluluğu: Zero-Vanguard](https://img.shields.io/badge/Riot%20Uyumlulu%C4%9Fu-Zero--Vanguard-6366f1)](SECURITY.md)
 
 [English](README.md) | **Türkçe**
 
@@ -14,6 +14,12 @@
   Yama sürümleri arasında seviye bazlı Efektif Can (EHP), anlık kombo hasarı, NumPy eğrileriyle sürekli DPS, zırh/büyü nüfuzu kırılımları, **`13` modellenmiş anahtar rün** ve **`17` eşya pasifi** üzerinden matematiksel karşılaştırma yapar.
 - **Yetenek Seti Odaklı AI Build & Tam Rün Laboratuvarı (`build_optimizer.py`, `full_rune_page_engine.py`, `ai_build_advisor.py`):**
   Şampiyonun yetenek arketipine ve seçilen rakip direnç/tehdit profiline göre çoklu çekirdek eşya dizilimlerini ve Sezon 16 tam 9 slotlu rün sayfasını (anahtar rün, 3 birincil, 2 ikincil, 3 stat parçası) sıralar. OpenAI uyumlu LLM açıklamalarını (`groq`, `openai`, `deepseek`), API anahtarı gerektirmeyen `offline` yedek modu ve kullanıcı varyasyon geri bildirimlerini destekler.
+- **Sıfırıncı Dakika Meta Kâhini & Yama Efsane Çürütücü (`zero_day_oracle.py`, `socialCardRenderer.ts`):**
+  Maç istatistikleri oluşmadan 0. dakikada tüm şampiyon havuzunu tarayarak eşya/rün değişimlerinden dolaylı etkilenen gizli kazananları ve kaybedenleri bulur, aldatıcı yama efsanelerini (`TRAP_BUFF_NET_NERF`, `HIDDEN_NET_BUFF`, `PLACEBO_BUFF`, `PAPER_TIGER_NERF`) çürütür ve `1200×630` PNG sosyal özet kartı üretir.
+- **Resmi ARAM Modifikatörleri & PvE Minyon/Objektif Laboratuvarı (`aram_balance_service.py`, `pve_lab_engine.py`):**
+  ARAM modunda şampiyon bazlı resmi verilen/alınan hasar, kalkan, iyileştirme ve yetenek hızı çarpanlarını simülasyona katar; 5., 9. ve 14. dakikalarda büyücü minyon tek atma eşiklerini ve Element Ejderi / Atakhan / Baron Nashor solo kesim sürelerini hesaplar.
+- **Kazanma Oranı Tuzağı Dedektörü & 3-Yönlü Dinamik Maç Durumu Ağacı (`game_state_pivot_engine.py`):**
+  İstatistik sitelerinde yüksek win-rate ile yanıltan survivorship-bias tuzak eşyalarını tespit eder, ucuz Comeback alternatifleri önerir ve `Gerideyim / Başabaş / Öndeyim` durumlarına göre 6/7 slotlu build pivotlarını karşılaştırır.
 - **Otomatik Riot Data Dragon + CommunityDragon Yama Farkı Motoru (`ddragon_sync.py`, `cdragon_enricher.py`, `patch_diff_engine.py`, `meta_shift_analyzer.py`):**
   Eşzamanlılık kilidi (lock) altında Riot Data Dragon şampiyon/eşya/rün verilerini ve CommunityDragon yetenek katsayılarını senkronize eder; ardışık yamalar (örneğin `16.22.1` ve `16.23.1`) arasındaki sayısal farkları çıkarır ve isteğe bağlı serbest yama metinlerini LLM ile ayrıştırır (`POST /api/v1/parse-patch`).
 - **25 Resmi LoL Arayüz Dili (`locale_service.py`):**
@@ -85,6 +91,7 @@ cp .env.example .env
 | :--- | :--- | :--- |
 | `DATABASE_URL` | PostgreSQL SQLAlchemy bağlantı adresi | `postgresql+psycopg://patchdiff:patchdiff_secret@localhost:5432/patchdiff_db` |
 | `REDIS_URL` | Redis önbellek bağlantı adresi | `redis://localhost:6379/0` |
+| `CORS_ORIGINS` | Virgülle ayrılmış izinli frontend adresleri | `http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000` |
 | `LLM_PROVIDER` | AI açıklama modu (`groq`, `openai`, `deepseek` veya `offline`) | `offline` (anahtarsız mod) veya `groq` |
 | `LLM_BASE_URL` | OpenAI uyumlu temel URL | `https://api.groq.com/openai/v1` |
 | `LLM_API_KEY` | Sağlayıcı API anahtarı (`LLM_PROVIDER=offline` iken gerekmez) | `your_llm_api_key_here` |
@@ -138,7 +145,7 @@ Tarayıcınızda Vite'ın verdiği yerel adresi (genellikle `http://localhost:51
 
 | Metot | Uç Nokta | Amaç |
 | :--- | :--- | :--- |
-| `GET` | `/` | Servis bilgisi ve sürüm (`1.0.0`) |
+| `GET` | `/` | Servis bilgisi ve sürüm (`2.0.0`) |
 | `GET` | `/api/v1/health` | Sağlık kontrolü (veritabanı ve Redis bağlantısı) |
 | `GET` | `/api/v1/champions` | Yerelleştirilmiş şampiyon adları ve temel nitelikler |
 | `GET` | `/api/v1/items` | Sihirdar Vadisi eşyaları ve ikon verileri |
@@ -146,8 +153,10 @@ Tarayıcınızda Vite'ın verdiği yerel adresi (genellikle `http://localhost:51
 | `POST` | `/api/v1/simulate` | Seviye 1–20 A/B yama çatışma ve EHP simülasyonu |
 | `GET` | `/api/v1/patches/latest` | Son senkronize yamalar ve otomatik fark akışı |
 | `POST` | `/api/v1/patches/sync` | Riot Data Dragon + CommunityDragon senkronizasyonunu tetikleme |
+| `GET` | `/api/v1/patches/zero-day-radar` | 0. Dakika tüm kadro dolaylı etki taraması ve efsane çürütücü |
 | `GET` | `/api/v1/patches/{version}/diffs` | Belirli bir yamanın yapılandırılmış değişiklik listesi |
-| `POST` | `/api/v1/recommend-builds` | Sıralı build önerileri, tam 9 slot rün ve AI gerekçesi |
+| `POST` | `/api/v1/recommend-builds` | Sıralı build önerileri, tam 9 slot rün, tuzak uyarısı ve 3-durum pivotu |
+| `POST` | `/api/v1/pve-lab` | 5/9/14. dk minyon waveclear ve Ejder/Atakhan/Baron solo DPS analizi |
 | `POST` | `/api/v1/feedback` | Build varyasyonları için kullanıcı geri bildirimi (`accepted` / `rejected`) |
 | `GET` | `/api/v1/feedback/summary` | Toplanmış varyasyon tercih metriklerini görüntüleme |
 
@@ -174,9 +183,9 @@ npm run build
 
 PatchDiff Sandbox, Riot Games Geliştirici Politikaları ile tam uyumlu kademeli bir açık kaynak yol haritası izler:
 
-- **`v1.0.0` (Mevcut Sürüm):** Uçtan uca yama simülatörü, Data Dragon + CommunityDragon otomatik senkronizasyon hattı, AI build ve tam 9 slot rün laboratuvarı, 25 resmi LoL dili ve MIT açık kaynak depo altyapısı.
-- **`v2.0.0` (Dalga 1 — İstemcisiz Meta Zekâsı):** Sıfırıncı Dakika Gizli Kazananlar & Yama Efsane Çürütücüsü, topluluk ARAM denge çarpanları (`aram.bin.json`), minyon dalgası tekmeleme eşikleri ve Öndeyken/Gerideyken dinamik build pivotları.
-- **`v2.5.0` (Dalga 2 — %100 Web Pratik Araçları):** Tek tıkla LoL Resmi Eşya Seti JSON panoya kopyalama destekli web altın kırılma noktası koçu ve 5v5 hayatta kalma / CC sıvışma matrisi.
+- **`v1.0.0` (Tamamlandı):** Uçtan uca yama simülatörü, Data Dragon + CommunityDragon otomatik senkronizasyon hattı, AI build ve tam 9 slot rün laboratuvarı, 25 resmi LoL dili ve MIT açık kaynak depo altyapısı.
+- **`v2.0.0` (Mevcut Sürüm — Dalga 1 İstemcisiz Meta Zekâsı):** Sıfırıncı Dakika Meta Kâhini & Efsane Çürütücü (`1200×630` PNG stüdyosu), resmi şampiyon bazlı ARAM denge modifikatörleri, 5/9/14. dk minyon dalgası ve epik objektif laboratuvarı ile Kazanma Oranı Tuzağı + Geride/Başabaş/Önde 3-yönlü dinamik build pivotları.
+- **`v2.5.0` (Dalga 2 — Masaüstü LCU / Live Client Yardımcısı & Pratik Araçlar):** Tauri yardımcı entegrasyonu, tek tıkla LoL Resmi Eşya Seti JSON dışa aktarımlı altın kırılma noktası koçu ve 5v5 hayatta kalma / CC sıvışma matrisi.
 - **`v3.0.0` (Dalga 3 — Resmi Riot Match-V5 Maç Sonu Denetimi):** Yalnızca resmi Riot Production API anahtarı üzerinden çalışan sunucu tabanlı maç sonu zaman çizelgesi kıyaslaması ("Dükkâncı Mahkemesi").
 
 ---

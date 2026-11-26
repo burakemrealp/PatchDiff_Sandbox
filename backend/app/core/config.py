@@ -1,10 +1,17 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+def parse_cors_origins(raw: str) -> list[str]:
+    """Parses a comma-separated CORS origin string into a deduplicated list."""
+    origins = [origin.strip().rstrip("/") for origin in (raw or "").split(",") if origin.strip()]
+    return origins or ["http://localhost:5173"]
+
+
 class Settings(BaseSettings):
     DEBUG: bool = False
     DATABASE_URL: str = "postgresql+psycopg://patchdiff:patchdiff_secret@localhost:5432/patchdiff_db"
     REDIS_URL: str = "redis://localhost:6379/0"
+    CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000"
 
     # Universal OpenAI-Compatible LLM Settings (Default: Groq)
     LLM_PROVIDER: str = "groq"  # "groq", "openai", "deepseek", "offline"

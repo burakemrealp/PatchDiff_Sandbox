@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: patchdiff-sandbox-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m app.init_db && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.8
+      - key: DEBUG
+        value: "false"
+      - key: AUTO_SYNC_ENABLED
+        value: "true"
+      - key: AUTO_SYNC_INTERVAL_MINUTES
+        value: "360"
+      - key: LLM_PROVIDER
+        value: offline
+      - key: LLM_MODEL
+        value: openai/gpt-oss-20b
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

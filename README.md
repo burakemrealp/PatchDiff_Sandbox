@@ -1,6 +1,6 @@
 # PatchDiff Sandbox
 
-[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](#) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](README.tr.md) [![Version: v1.0.0](https://img.shields.io/badge/Version-v1.0.0-10b981)](CHANGELOG.md) [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b)](LICENSE) [![Riot Compliance: Zero-Vanguard](https://img.shields.io/badge/Riot%20Compliance-Zero--Vanguard-6366f1)](SECURITY.md)
+[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](#) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](README.tr.md) [![Version: v2.0.0](https://img.shields.io/badge/Version-v2.0.0-10b981)](CHANGELOG.md) [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b)](LICENSE) [![Riot Compliance: Zero-Vanguard](https://img.shields.io/badge/Riot%20Compliance-Zero--Vanguard-6366f1)](SECURITY.md)
 
 **English** | [Türkçe](README.tr.md)
 
@@ -14,6 +14,12 @@ A deterministic **League of Legends** patch analysis engine, Level 1–20 combat
   Computes per-level Effective Health (EHP), burst combo damage, sustained DPS using NumPy curves, armor/magic penetration breakdowns, **`13` modeled keystones**, and **`17` item passive effects** across patch versions.
 - **Kit-Aware AI Build & Full Rune Page Lab (`build_optimizer.py`, `full_rune_page_engine.py`, `ai_build_advisor.py`):**
   Ranks multi-item core builds and full 9-slot Season 16 rune pages (keystone, 3 primary shards, 2 secondary shards, 3 stat shards) tailored to champion kit archetypes and target enemy resist/threat profiles. Supports OpenAI-compatible LLM explanations (`groq`, `openai`, `deepseek`) with a zero-cost `offline` fallback and user variation feedback tracking.
+- **Zero-Day Meta Oracle & Patch Mythbuster (`zero_day_oracle.py`, `socialCardRenderer.ts`):**
+  Scans the full champion roster on Day 0 before match statistics exist to detect unlisted indirect item/rune winners and losers, expose deceptive patch myths (`TRAP_BUFF_NET_NERF`, `HIDDEN_NET_BUFF`, `PLACEBO_BUFF`, `PAPER_TIGER_NERF`), and export `1200×630` PNG social summary cards.
+- **Official ARAM Modifiers & PvE Waveclear/Objective Lab (`aram_balance_service.py`, `pve_lab_engine.py`):**
+  Applies per-champion official ARAM damage/defense/haste/shield multipliers in ARAM mode and evaluates Minute `5 / 9 / 14` caster minion one-shot breakpoints alongside Elemental Dragon, Atakhan, and Baron Nashor solo kill speeds.
+- **Win-Rate Trap Detector & 3-Way Game-State Pivots (`game_state_pivot_engine.py`):**
+  Flags survivorship-bias trap purchases (such as *Mejai's Soulstealer* or 3500g+ zero-defense luxury walls when behind), recommends cost-effective comeback swaps, and compares dynamic `behind` / `even` / `ahead` build paths.
 - **Automatic Riot Patch Sync & Meta Diff Engine (`ddragon_sync.py`, `cdragon_enricher.py`, `patch_diff_engine.py`, `meta_shift_analyzer.py`):**
   Fetches official Riot Data Dragon champion/item/rune snapshots alongside CommunityDragon spell calculations under a thread-safe concurrency lock, builds structured diffs between consecutive patches (for example `16.22.1` vs `16.23.1`), and optionally extracts structured deltas from raw patch notes text (`POST /api/v1/parse-patch`).
 - **25 Official LoL UI Locales (`locale_service.py`):**
@@ -85,6 +91,7 @@ Key environment variables in [`.env.example`](.env.example):
 | :--- | :--- | :--- |
 | `DATABASE_URL` | PostgreSQL SQLAlchemy connection URI | `postgresql+psycopg://patchdiff:patchdiff_secret@localhost:5432/patchdiff_db` |
 | `REDIS_URL` | Redis cache connection URI | `redis://localhost:6379/0` |
+| `CORS_ORIGINS` | Comma-separated allowed frontend origins | `http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000` |
 | `LLM_PROVIDER` | AI explanation mode (`groq`, `openai`, `deepseek`, or `offline`) | `offline` (zero-key mode) or `groq` |
 | `LLM_BASE_URL` | OpenAI-compatible base URL | `https://api.groq.com/openai/v1` |
 | `LLM_API_KEY` | Provider API key (unused when `LLM_PROVIDER=offline`) | `your_llm_api_key_here` |
@@ -138,7 +145,7 @@ Open the local Vite dev URL (typically `http://localhost:5173`) in your browser.
 
 | Method | Endpoint | Purpose |
 | :--- | :--- | :--- |
-| `GET` | `/` | Service metadata & version (`1.0.0`) |
+| `GET` | `/` | Service metadata & version (`2.0.0`) |
 | `GET` | `/api/v1/health` | Health check (database & Redis connectivity) |
 | `GET` | `/api/v1/champions` | List synced champions with localized names & base stats |
 | `GET` | `/api/v1/items` | List synced Summoner's Rift items & icon metadata |
@@ -146,8 +153,10 @@ Open the local Vite dev URL (typically `http://localhost:5173`) in your browser.
 | `POST` | `/api/v1/simulate` | Run Level 1–20 patch A/B combat & EHP simulation |
 | `GET` | `/api/v1/patches/latest` | Fetch latest synced patches & auto-generated diff feed |
 | `POST` | `/api/v1/patches/sync` | Trigger Riot Data Dragon + CommunityDragon synchronization |
+| `GET` | `/api/v1/patches/zero-day-radar` | Run full-roster Day-0 indirect impact scan & mythbuster radar |
 | `GET` | `/api/v1/patches/{version}/diffs` | Retrieve structured diffs for a specific patch version |
-| `POST` | `/api/v1/recommend-builds` | Generate ranked builds, full 9-slot runes & AI rationale |
+| `POST` | `/api/v1/recommend-builds` | Generate ranked builds, 9-slot runes, trap alerts & 3-state pivots |
+| `POST` | `/api/v1/pve-lab` | Compute Minute 5/9/14 waveclear & Dragon/Atakhan/Baron solo DPS |
 | `POST` | `/api/v1/feedback` | Record user feedback (`accepted` / `rejected`) on build variations |
 | `GET` | `/api/v1/feedback/summary` | Inspect aggregated variation preference metrics |
 
@@ -174,9 +183,9 @@ npm run build
 
 PatchDiff Sandbox follows a phased open-source evolution designed to stay compliant with Riot Games Developer Policies:
 
-- **`v1.0.0` (Current Release):** Full-stack patch simulator, Data Dragon + CommunityDragon auto-sync pipeline, AI build & 9-slot rune lab, 25 official LoL locales, and MIT open-source repository foundation.
-- **`v2.0.0` (Wave 1 — Client-Free Meta Intelligence):** Zero-Day Hidden Winners & Patch Mythbuster radar, community-maintained ARAM balance multipliers (`aram.bin.json`), lane wave-clear breakpoints, and Snowball vs. Comeback dynamic build pivots.
-- **`v2.5.0` (Wave 2 — Pure Web Practical Tools):** Web-only gold breakpoint coach with one-click native LoL Item Set JSON clipboard export, plus a 5v5 survival, mitigation, and tenacity matrix.
+- **`v1.0.0` (Completed):** Full-stack patch simulator, Data Dragon + CommunityDragon auto-sync pipeline, AI build & 9-slot rune lab, 25 official LoL locales, and MIT open-source repository foundation.
+- **`v2.0.0` (Current Release — Wave 1 Client-Free Meta Intelligence):** Zero-Day Meta Oracle & Patch Mythbuster radar (`1200×630` PNG studio), official per-champion ARAM balance multipliers, Minute 5/9/14 PvE waveclear & epic objective lab, and Win-Rate Trap Detector with 3-way Ahead/Even/Behind dynamic build pivots.
+- **`v2.5.0` (Wave 2 — Desktop LCU / Live Client Companion & Practical Tools):** Tauri companion integration, gold breakpoint coach with native LoL Item Set JSON export, and 5v5 survival/CC tenacity matrix.
 - **`v3.0.0` (Wave 3 — Official Riot Match-V5 Post-Game Audit):** Server-side post-match timeline comparison ("Shopkeeper Audit") powered exclusively by official Riot Production API keys.
 
 ---

@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-11-26
+
+### Added
+- **Zero-Day Meta Oracle & Patch Mythbuster (`zero_day_oracle.py`, `GET /api/v1/patches/zero-day-radar`, `ZeroDayRadarPanel.tsx`):** Scans the full champion roster on Day 0 before post-patch match statistics exist to uncover unlisted indirect winners/losers caused by item and rune ecosystem changes, and exposes deceptive patch myths (`TRAP_BUFF_NET_NERF`, `HIDDEN_NET_BUFF`, `PLACEBO_BUFF`, `PAPER_TIGER_NERF`, `MODE_SPECIFIC_TRAP`).
+- **Viral Social Card Studio (`socialCardRenderer.ts`):** Generates client-side `1200×630` HiDPI PNG patch summary cards in the active LoL locale plus one-click formatted Reddit/Discord/X summaries.
+- **Official ARAM Champion Balance Modifiers (`aram_balance_service.py`, `aram_overrides.json`, `AramModifiersBar.tsx`):** Parses and caches Riot's official ARAM per-champion multipliers (`dmg_dealt`, `dmg_taken`, `healing`, `shielding`, `ability_haste`, `total_as`, `tenacity`, `energyregen_mod` across `174` champion entries, `134` with active overrides) directly inside combat simulations, AI build scoring, and PvE benchmarks when `game_map="aram"`.
+- **PvE Minion Waveclear & Epic Objective Breakpoint Lab (`pve_lab_engine.py`, `POST /api/v1/pve-lab`, `PvELabDrawer.tsx`):** Evaluates Minute `5 / 9 / 14` caster minion one-shot thresholds, missing AP/AD margins, full-wave clear duration, and Elemental Dragon / Atakhan / Baron Nashor solo kill DPS with monster damage caps.
+- **Win-Rate Survivorship Trap Detector & 3-Way Game-State Pivot Tree (`game_state_pivot_engine.py`, `PivotAndTrapsPanel.tsx`):** Audits items for survivorship-bias traps (`STACKING_SNOWBALL_TRAP`, `LUXURY_GOLD_WALL_TRAP`, `FLAT_PEN_EXECUTION_TRAP`), suggests cost-effective comeback alternatives, and computes dynamic `behind` / `even` / `ahead` build pivots (`game_state` parameter on `POST /api/v1/recommend-builds`).
+- **Full Wave 1 25-Locale Localization (`locale_service.py`, `translationsZeroDay.ts`, `translationsWave1.ts`):** Localized Zero-Day verdicts, PvE monster & scaling stat labels, win-rate trap explanations, and UI controls across all `25` official LoL locales.
+- **Zero-Cost Cloud Deployment Support:** Added `normalize_database_url` in `database.py` (supporting Neon/Render `postgres://` and `postgresql://` URIs via `psycopg` v3), configurable `CORS_ORIGINS`, Render free-tier Blueprint ([render.yaml](render.yaml)), and Cloudflare Pages SPA routing ([frontend/public/_redirects](frontend/public/_redirects)).
+
+### Changed
+- Upgraded release version parity to `2.0.0` across [backend/app/main.py](backend/app/main.py), [frontend/package.json](frontend/package.json), and [frontend/package-lock.json](frontend/package-lock.json).
+- Configured Vite 8 / Rolldown chunk splitting (`react-vendor`, `charts-vendor`, `icons-vendor`, `i18n-bundles`) and `React.lazy` panel loading in [frontend/vite.config.ts](frontend/vite.config.ts) and [frontend/src/App.tsx](frontend/src/App.tsx) to keep every production JS chunk under `500 kB`.
+
 ## [1.0.0] - 2026-11-24
 
 ### Added

@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.config import parse_cors_origins, settings
 from app.core.database import SessionLocal, get_db
 from app.core.redis_client import check_redis_health
 from app.core.versioning import build_item_icon_url
@@ -57,19 +57,15 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="PatchDiff Sandbox API",
     description="Semantic League of Legends patch note parser, deterministic combat simulator, and AI build & rune optimizer.",
-    version="1.0.0",
+    version="2.0.0",
     lifespan=lifespan,
 )
 
-# CORS settings allowing requests from the local Vite/React frontend
+cors_origins = parse_cors_origins(settings.CORS_ORIGINS)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
-    ],
-    allow_credentials=True,
+    allow_origins=cors_origins,
+    allow_credentials=(cors_origins != ["*"]),
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -95,7 +91,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 def root():
     return {
         "service": "PatchDiff Sandbox API",
-        "version": "1.0.0",
+        "version": "2.0.0",
         "status": "online",
         "docs_url": "/docs",
         "llm_provider": settings.LLM_PROVIDER,
