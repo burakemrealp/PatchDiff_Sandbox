@@ -45,11 +45,11 @@ def test_release_version_parity_across_backend_frontend_and_changelog(monkeypatc
     match = pattern.search(changelog_text)
     assert match is not None and match.group(1).strip()
 
-    assert pkg_version == "2.0.0"
-    assert lock_version == "2.0.0"
+    assert pkg_version == "2.0.1"
+    assert lock_version == "2.0.1"
     assert app.version == pkg_version
 
     with TestClient(app) as client:
         res = client.get("/")
     assert res.status_code == 200
-    assert res.json()["version"] == "2.0.0"
+    assert res.json()["version"] == "2.0.1"

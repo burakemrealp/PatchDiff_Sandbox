@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-11-27
+
+### Added
+- **Hextech Dark & Light Dual-Theme System ([ThemeProvider.tsx](frontend/src/theme/ThemeProvider.tsx), [index.css](frontend/src/index.css)):** Added automatic `prefers-color-scheme` detection plus a circular header switcher toggling between **Hextech Twilight** (navy + gold + teal) and **Piltover Daylight** (pearl + sapphire), engineered to meet EU `EN 301 549` / `WCAG 2.1 AA` (`>= 4.5:1`) contrast, keyboard `:focus-visible` rings, and `prefers-reduced-motion` accessibility rules.
+- **Unified Hextech Diff-Crystal Brand Identity & SEO ([BrandCrest.tsx](frontend/src/components/BrandCrest.tsx), [index.html](frontend/index.html)):** Replaced starter Vite icons with a unified octagonal Hextech Diff-Crystal emblem (`favicon.svg`, `apple-touch-icon.png`), added a `1200×630` slogan preview banner ([og-banner.png](frontend/public/og-banner.png)), OpenGraph / X `summary_large_image` tags, `JSON-LD` schema, `robots.txt`, `sitemap.xml`, and circular header GitHub link.
+- **25-Locale Showcase Navigation & Plain-Language Tooltips ([FeatureShowcaseNav.tsx](frontend/src/components/FeatureShowcaseNav.tsx), [translationsPolish.ts](frontend/src/i18n/translationsPolish.ts)):** Redesigned the 4 top module tabs into concise highlight tiles with click-safe hover/keyboard tooltips explaining each capability clearly for players of all ranks.
+- **Footer Version & Open-Source Attribution ([App.tsx](frontend/src/App.tsx)):** Added `PatchDiff Sandbox v2.0.1 · Open Source (MIT)` and repository link above the Riot Legal Jibber Jabber disclaimer.
+
+### Changed
+- **Mobile-First Responsive UX Overhaul:** Added a compact 2×2 mobile feature grid, pinned mobile header controls, horizontal swipe strips for changed champions and sub-tabs, 3-state segmented mobile tab switcher inside [PivotAndTrapsPanel.tsx](frontend/src/components/PivotAndTrapsPanel.tsx), full-width mobile search/CTA controls, viewport collision clamping across all 25 locales in [LanguageSelector.tsx](frontend/src/components/LanguageSelector.tsx), and concise `<title>PatchDiff Sandbox</title>`.
+- **Social Card Studio Live Attribution ([socialCardRenderer.ts](frontend/src/utils/socialCardRenderer.ts)):** Upgraded the downloadable `1200×630` PNG card to Hextech Twilight styling with the Diff-Crystal crest and added `https://patchdiff-sandbox.pages.dev` to both PNG exports and one-click Reddit/Discord copy summaries.
+- **Showcase Documentation & Domain Verification:** Added `riot.txt` domain verification, live `patchdiff-sandbox.pages.dev` badges, preview banner embeds in [README.md](README.md) & [README.tr.md](README.tr.md), and bumped project version parity to `2.0.1`.
+
 ## [2.0.0] - 2026-11-26
 
 ### Added

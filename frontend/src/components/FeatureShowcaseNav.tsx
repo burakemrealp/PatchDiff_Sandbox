@@ -78,7 +78,7 @@ export function FeatureShowcaseNav({
   return (
     <nav
       aria-label="Primary Features"
-      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
+      className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3"
     >
       {items.map((item) => {
         const isActive = activeMode === item.mode;
@@ -105,16 +105,16 @@ export function FeatureShowcaseNav({
               onBlur={() => setOpenTipMode((cur) => (cur === item.mode ? null : cur))}
               aria-current={isActive ? 'page' : undefined}
               aria-describedby={isTipOpen ? `nav-tip-${item.mode}` : undefined}
-              className={`w-full h-full text-start rounded-xl border px-3.5 py-3 transition-all cursor-pointer flex flex-col justify-between gap-2 ${
+              className={`w-full h-full text-start rounded-xl border px-2.5 py-2.5 sm:px-3.5 sm:py-3 transition-all cursor-pointer flex flex-col justify-between gap-1.5 sm:gap-2 ${
                 isActive
                   ? item.activeBorder
                   : 'bg-slate-900 border-slate-800 hover:border-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
+              <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                   <span
-                    className={`w-7 h-7 rounded-lg border inline-flex items-center justify-center shrink-0 ${
+                    className={`w-6 h-6 sm:w-7 sm:h-7 rounded-lg border inline-flex items-center justify-center shrink-0 ${
                       isActive
                         ? item.iconWrapActive
                         : 'bg-slate-950 border-slate-800 text-slate-300'
@@ -122,12 +122,12 @@ export function FeatureShowcaseNav({
                   >
                     {item.icon}
                   </span>
-                  <span className="text-xs font-bold text-slate-100 truncate">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-100 truncate">
                     {item.title}
                   </span>
                 </div>
                 <span
-                  className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider border shrink-0 ${
+                  className={`hidden sm:inline-block px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider border shrink-0 ${
                     isActive
                       ? item.activeBadge
                       : 'bg-slate-950 text-slate-400 border-slate-800'
@@ -137,10 +137,10 @@ export function FeatureShowcaseNav({
                 </span>
               </div>
 
-              <div className="flex items-center justify-between gap-2 text-[11px] text-slate-400">
+              <div className="flex items-center justify-between gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-slate-400">
                 <span className="truncate">{item.shortDesc}</span>
                 <Info
-                  className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                  className={`hidden sm:block w-3.5 h-3.5 shrink-0 transition-colors ${
                     isTipOpen ? 'text-cyan-400' : 'text-slate-500'
                   }`}
                 />

@@ -1,10 +1,12 @@
 # PatchDiff Sandbox
 
-[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](README.md) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](#) [![Sürüm: v2.0.0](https://img.shields.io/badge/S%C3%BCr%C3%BCm-v2.0.0-10b981)](CHANGELOG.md) [![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-f59e0b)](LICENSE) [![Riot Uyumluluğu: Zero-Vanguard](https://img.shields.io/badge/Riot%20Uyumlulu%C4%9Fu-Zero--Vanguard-6366f1)](SECURITY.md)
+[![Canlı Web Sitesi](https://img.shields.io/badge/Canl%C4%B1%20Site-patchdiff--sandbox.pages.dev-0ac8b9?logo=cloudflarepages&logoColor=white)](https://patchdiff-sandbox.pages.dev) [![Sürüm: v2.0.1](https://img.shields.io/badge/S%C3%BCr%C3%BCm-v2.0.1-10b981)](CHANGELOG.md) [![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](README.md) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](#) [![Lisans: MIT](https://img.shields.io/badge/Lisans-MIT-f59e0b)](LICENSE) [![Riot Uyumluluğu: Zero-Vanguard](https://img.shields.io/badge/Riot%20Uyumlulu%C4%9Fu-Zero--Vanguard-6366f1)](SECURITY.md)
 
-[English](README.md) | **Türkçe**
+[English](README.md) | **Türkçe** | **[Canlı Web Sitesini Aç →](https://patchdiff-sandbox.pages.dev)**
 
 **League of Legends** için deterministik yama analiz motoru, Seviye 1–20 çatışma ve Efektif Can (EHP) simülatörü ile yapay zekâ destekli eşya + tam 9 slotlu rün optimizasyon laboratuvarı — **oyun istemcisinden ve Riot Vanguard'dan %100 bağımsız** çalışacak şekilde tasarlanmıştır.
+
+![PatchDiff Sandbox Vitrini](frontend/public/og-banner.png)
 
 ---
 
@@ -22,8 +24,8 @@
   İstatistik sitelerinde yüksek win-rate ile yanıltan survivorship-bias tuzak eşyalarını tespit eder, ucuz Comeback alternatifleri önerir ve `Gerideyim / Başabaş / Öndeyim` durumlarına göre 6/7 slotlu build pivotlarını karşılaştırır.
 - **Otomatik Riot Data Dragon + CommunityDragon Yama Farkı Motoru (`ddragon_sync.py`, `cdragon_enricher.py`, `patch_diff_engine.py`, `meta_shift_analyzer.py`):**
   Eşzamanlılık kilidi (lock) altında Riot Data Dragon şampiyon/eşya/rün verilerini ve CommunityDragon yetenek katsayılarını senkronize eder; ardışık yamalar (örneğin `16.22.1` ve `16.23.1`) arasındaki sayısal farkları çıkarır ve isteğe bağlı serbest yama metinlerini LLM ile ayrıştırır (`POST /api/v1/parse-patch`).
-- **25 Resmi LoL Arayüz Dili (`locale_service.py`):**
-  Hem arayüz metinlerini hem de backend simülasyon/build etiketlerini **resmi `leagueoflegends.com` üzerindeki `25` dilin tamamında** (`tr_TR`, `en_US`, `ko_KR`, `ja_JP`, `zh_TW`, `th_TH`, `vi_VN`, `id_ID` ve sağdan sola RTL destekli `ar_AE` dahil) yerelleştirir.
+- **25 Resmi LoL Dili, Çift Hextech Tema & Mobil Uyumlu Arayüz (`locale_service.py`, `ThemeProvider.tsx`):**
+  Tüm arayüz ve backend çıktılarını **resmi `25` LoL dilinde** (sağdan sola RTL `ar_AE` dahil) yerelleştirir; sistem temasını tanıyan Koyu (*Hextech Twilight*) ve Açık (*Piltover Daylight*) AB `WCAG 2.1 AA` uyumlu temalar ile mobil ekranlara tam uyumlu düzen sunar.
 - **İstemciden Bağımsız / Zero-Vanguard Güvenliği:**
   League of Legends istemcisine bağlanmaz, oyun belleğini (memory) okumaz, ekran içi overlay enjekte etmez veya girdi otomasyonu yapmaz. Yalnızca herkese açık statik yama verileri ve kullanıcı tarafından seçilen sandbox senaryoları üzerinden çalışır.
 
@@ -145,7 +147,7 @@ Tarayıcınızda Vite'ın verdiği yerel adresi (genellikle `http://localhost:51
 
 | Metot | Uç Nokta | Amaç |
 | :--- | :--- | :--- |
-| `GET` | `/` | Servis bilgisi ve sürüm (`2.0.0`) |
+| `GET` | `/` | Servis bilgisi ve sürüm (`2.0.1`) |
 | `GET` | `/api/v1/health` | Sağlık kontrolü (veritabanı ve Redis bağlantısı) |
 | `GET` | `/api/v1/champions` | Yerelleştirilmiş şampiyon adları ve temel nitelikler |
 | `GET` | `/api/v1/items` | Sihirdar Vadisi eşyaları ve ikon verileri |

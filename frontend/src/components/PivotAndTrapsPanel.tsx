@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AlertTriangle, ArrowRightLeft, Flame, GitBranch, Scale, ShieldAlert } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import type { GameStateKey, PivotTreeReport, WinrateTrapWarning } from '../types/api';
@@ -21,15 +22,24 @@ export function PivotAndTrapsPanel({
   onSelectAndGenerateState,
 }: PivotAndTrapsPanelProps) {
   const { t } = useLanguage();
+  const [mobileStateTab, setMobileStateTab] = useState<GameStateKey | null>(null);
 
   if (warnings.length === 0 && !pivotTree) {
     return null;
   }
 
+  const shortStateLabels: Record<GameStateKey, string> = {
+    behind: t.stateBehind,
+    even: t.stateEven,
+    ahead: t.stateAhead,
+  };
+  const activeReportState = pivotTree?.active_game_state || activeGameState;
+  const displayedMobileState = mobileStateTab ?? activeReportState;
+
   return (
     <div className="space-y-4">
       {warnings.length > 0 && (
-        <div className="rounded-xl bg-slate-900 border border-amber-500/35 p-5 space-y-3">
+        <div className="rounded-xl bg-slate-900 border border-amber-500/35 p-3.5 sm:p-5 space-y-3">
           <div className="flex items-start gap-2.5">
             <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
@@ -98,7 +108,7 @@ export function PivotAndTrapsPanel({
       )}
 
       {pivotTree && (
-        <div className="rounded-xl bg-slate-900 border border-slate-800 p-5 space-y-4">
+        <div className="rounded-xl bg-slate-900 border border-slate-800 p-3.5 sm:p-5 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-start gap-2.5">
               <GitBranch className="w-5 h-5 text-cyan-400 shrink-0 mt-0.5" />
@@ -112,6 +122,26 @@ export function PivotAndTrapsPanel({
             </span>
           </div>
 
+          <div className="lg:hidden grid grid-cols-3 gap-1.5">
+            {ORDERED_STATES.map((stateKey) => {
+              const isTabSelected = displayedMobileState === stateKey;
+              return (
+                <button
+                  key={`mob-${stateKey}`}
+                  type="button"
+                  onClick={() => setMobileStateTab(stateKey)}
+                  className={`px-2 py-2 rounded-lg text-xs font-semibold border text-center transition cursor-pointer ${
+                    isTabSelected
+                      ? 'bg-cyan-500/20 border-cyan-500/60 text-cyan-200'
+                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                  }`}
+                >
+                  {shortStateLabels[stateKey]}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
             {ORDERED_STATES.map((stateKey) => {
               const node = pivotTree.pivots?.[stateKey];
@@ -119,6 +149,7 @@ export function PivotAndTrapsPanel({
 
               const isActive =
                 (pivotTree.active_game_state || activeGameState) === stateKey;
+              const isMobileShown = displayedMobileState === stateKey;
 
               const accentBorder = isActive
                 ? stateKey === 'behind'
@@ -134,7 +165,9 @@ export function PivotAndTrapsPanel({
               return (
                 <div
                   key={stateKey}
-                  className={`rounded-xl border p-4 flex flex-col justify-between gap-3 ${accentBorder}`}
+                  className={`rounded-xl border p-3.5 sm:p-4 flex-col justify-between gap-3 ${
+                    isMobileShown ? 'flex' : 'hidden lg:flex'
+                  } ${accentBorder}`}
                 >
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between gap-2">

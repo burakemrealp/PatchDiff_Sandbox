@@ -1,10 +1,12 @@
 # PatchDiff Sandbox
 
-[![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](#) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](README.tr.md) [![Version: v2.0.0](https://img.shields.io/badge/Version-v2.0.0-10b981)](CHANGELOG.md) [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b)](LICENSE) [![Riot Compliance: Zero-Vanguard](https://img.shields.io/badge/Riot%20Compliance-Zero--Vanguard-6366f1)](SECURITY.md)
+[![Live Web App](https://img.shields.io/badge/Live%20Web%20App-patchdiff--sandbox.pages.dev-0ac8b9?logo=cloudflarepages&logoColor=white)](https://patchdiff-sandbox.pages.dev) [![Version: v2.0.1](https://img.shields.io/badge/Version-v2.0.1-10b981)](CHANGELOG.md) [![Language: English](https://img.shields.io/badge/Language-English-0ea5e9)](#) [![Dil: Türkçe](https://img.shields.io/badge/Dil-T%C3%BCrk%C3%A7e-ef4444)](README.tr.md) [![License: MIT](https://img.shields.io/badge/License-MIT-f59e0b)](LICENSE) [![Riot Compliance: Zero-Vanguard](https://img.shields.io/badge/Riot%20Compliance-Zero--Vanguard-6366f1)](SECURITY.md)
 
-**English** | [Türkçe](README.tr.md)
+**English** | [Türkçe](README.tr.md) | **[Open Live Web App →](https://patchdiff-sandbox.pages.dev)**
 
 A deterministic **League of Legends** patch analysis engine, Level 1–20 combat & Effective Health (EHP) simulator, and AI-assisted build + full 9-slot rune optimizer — engineered to run **100% independent of the game client and Riot Vanguard**.
+
+![PatchDiff Sandbox Showcase](frontend/public/og-banner.png)
 
 ---
 
@@ -22,8 +24,8 @@ A deterministic **League of Legends** patch analysis engine, Level 1–20 combat
   Flags survivorship-bias trap purchases (such as *Mejai's Soulstealer* or 3500g+ zero-defense luxury walls when behind), recommends cost-effective comeback swaps, and compares dynamic `behind` / `even` / `ahead` build paths.
 - **Automatic Riot Patch Sync & Meta Diff Engine (`ddragon_sync.py`, `cdragon_enricher.py`, `patch_diff_engine.py`, `meta_shift_analyzer.py`):**
   Fetches official Riot Data Dragon champion/item/rune snapshots alongside CommunityDragon spell calculations under a thread-safe concurrency lock, builds structured diffs between consecutive patches (for example `16.22.1` vs `16.23.1`), and optionally extracts structured deltas from raw patch notes text (`POST /api/v1/parse-patch`).
-- **25 Official LoL UI Locales (`locale_service.py`):**
-  Translates both UI chrome and backend simulation/build labels across **all `25` official `leagueoflegends.com` locales** (including `en_US`, `tr_TR`, `ko_KR`, `ja_JP`, `zh_TW`, `th_TH`, `vi_VN`, `id_ID`, and full right-to-left `ar_AE` support).
+- **25 Official LoL UI Locales, Dual Hextech Themes & Mobile-Ready UX (`locale_service.py`, `ThemeProvider.tsx`):**
+  Translates UI chrome and backend simulation/build labels across **all `25` official `leagueoflegends.com` locales** (including RTL `ar_AE`), supports auto-detected Dark (*Hextech Twilight*) and Light (*Piltover Daylight*) themes compliant with EU `EN 301 549` / `WCAG 2.1 AA`, and adapts cleanly to mobile screens.
 - **Strict Client-Free / Zero-Vanguard Safety:**
   Never hooks into the League client, reads game process memory, injects overlays, or automates inputs. Operates purely on public static patch data and user-selected sandbox scenarios.
 
@@ -145,7 +147,7 @@ Open the local Vite dev URL (typically `http://localhost:5173`) in your browser.
 
 | Method | Endpoint | Purpose |
 | :--- | :--- | :--- |
-| `GET` | `/` | Service metadata & version (`2.0.0`) |
+| `GET` | `/` | Service metadata & version (`2.0.1`) |
 | `GET` | `/api/v1/health` | Health check (database & Redis connectivity) |
 | `GET` | `/api/v1/champions` | List synced champions with localized names & base stats |
 | `GET` | `/api/v1/items` | List synced Summoner's Rift items & icon metadata |

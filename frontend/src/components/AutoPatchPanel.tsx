@@ -39,7 +39,7 @@ export function AutoPatchPanel({
     dir === 'BUFF' ? t.dirBuff : dir === 'NERF' ? t.dirNerf : t.dirAdjustment;
 
   return (
-    <section className="rounded-xl bg-slate-900 border border-slate-800 p-5 space-y-4">
+    <section className="rounded-xl bg-slate-900 border border-slate-800 p-3.5 sm:p-5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <CloudDownload className="w-5 h-5 text-cyan-400" />
@@ -92,7 +92,7 @@ export function AutoPatchPanel({
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             {t.detectedChampChangesHeading} ({changedChampions.length})
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap gap-2 pb-1 sm:pb-0">
             {changedChampions.map((entry) => {
               const active = entry.entity_key === selectedChampionKey;
               const badgeStyle =
@@ -107,7 +107,7 @@ export function AutoPatchPanel({
                   key={entry.entity_key}
                   type="button"
                   onClick={() => onSelectChampion(entry.entity_key)}
-                  className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                  className={`shrink-0 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold border transition cursor-pointer ${
                     active
                       ? 'bg-cyan-500/20 border-cyan-500/60 text-white'
                       : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'

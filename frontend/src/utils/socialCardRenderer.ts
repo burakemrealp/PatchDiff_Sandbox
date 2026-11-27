@@ -32,8 +32,70 @@ export function buildZeroDayShareText(radar: ZeroDayRadarReport, t: TranslationD
     );
   }
 
-  lines.push('', 'PatchDiff Sandbox (Zero-Vanguard Math Engine) · https://github.com/burakemrealp/PatchDiff_Sandbox');
+  lines.push(
+    '',
+    'Live Web App: https://patchdiff-sandbox.pages.dev',
+    'Open Source: https://github.com/burakemrealp/PatchDiff_Sandbox'
+  );
   return lines.join('\n');
+}
+
+function drawCanvasHextechCrest(
+  ctx: CanvasRenderingContext2D,
+  ox: number,
+  oy: number,
+  boxSize: number
+): void {
+  const k = boxSize / 64;
+  const px = (x: number) => ox + x * k;
+  const py = (y: number) => oy + y * k;
+
+  ctx.save();
+  // Outer chamfered octagon shield
+  ctx.beginPath();
+  ctx.moveTo(px(20), py(4));
+  ctx.lineTo(px(44), py(4));
+  ctx.lineTo(px(60), py(20));
+  ctx.lineTo(px(60), py(44));
+  ctx.lineTo(px(44), py(60));
+  ctx.lineTo(px(20), py(60));
+  ctx.lineTo(px(4), py(44));
+  ctx.lineTo(px(4), py(20));
+  ctx.closePath();
+  ctx.fillStyle = '#0e1e38';
+  ctx.fill();
+  ctx.lineWidth = Math.max(1.5, 2.5 * k);
+  ctx.strokeStyle = '#d8ad52';
+  ctx.stroke();
+
+  // Left gold facet ("Before")
+  ctx.beginPath();
+  ctx.moveTo(px(30.5), py(19));
+  ctx.lineTo(px(18.5), py(33));
+  ctx.lineTo(px(30.5), py(49));
+  ctx.closePath();
+  ctx.fillStyle = '#c49434';
+  ctx.fill();
+
+  // Right teal facet ("After / Buff Spike")
+  ctx.beginPath();
+  ctx.moveTo(px(33.5), py(13));
+  ctx.lineTo(px(47), py(31.5));
+  ctx.lineTo(px(33.5), py(48.5));
+  ctx.closePath();
+  ctx.fillStyle = '#0abcb2';
+  ctx.fill();
+
+  // Apex nexus diamond
+  ctx.beginPath();
+  ctx.moveTo(px(33.5), py(7.5));
+  ctx.lineTo(px(36.5), py(11.5));
+  ctx.lineTo(px(33.5), py(15.5));
+  ctx.lineTo(px(30.5), py(11.5));
+  ctx.closePath();
+  ctx.fillStyle = '#f8e09b';
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawRoundedRect(
@@ -162,16 +224,16 @@ export function downloadZeroDayCardPng(
 
   ctx.scale(scale, scale);
 
-  // Dark esports background gradient
+  // Hextech Twilight background gradient
   const bg = ctx.createLinearGradient(0, 0, width, height);
-  bg.addColorStop(0, '#020617');
-  bg.addColorStop(0.55, '#0f172a');
-  bg.addColorStop(1, '#1e1b4b');
+  bg.addColorStop(0, '#091428');
+  bg.addColorStop(0.55, '#10203a');
+  bg.addColorStop(1, '#141c3c');
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, width, height);
 
-  // Subtle background grid
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.06)';
+  // Subtle background grid & Hextech outer gold border
+  ctx.strokeStyle = 'rgba(10, 200, 185, 0.06)';
   ctx.lineWidth = 1;
   for (let gx = 0; gx < width; gx += 48) {
     ctx.beginPath();
@@ -185,18 +247,23 @@ export function downloadZeroDayCardPng(
     ctx.lineTo(width, gy);
     ctx.stroke();
   }
+  drawRoundedRect(ctx, 16, 16, width - 32, height - 32, 18);
+  ctx.strokeStyle = 'rgba(200, 155, 60, 0.48)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
 
-  // Top brand pill & patch transition badge
-  drawRoundedRect(ctx, 48, 38, 360, 34, 17);
-  ctx.fillStyle = 'rgba(14, 165, 233, 0.16)';
+  // Top Hextech Diff-Crystal crest + brand pill & patch transition badge
+  drawCanvasHextechCrest(ctx, 48, 32, 44);
+  drawRoundedRect(ctx, 104, 37, 345, 34, 17);
+  ctx.fillStyle = 'rgba(10, 200, 185, 0.14)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+  ctx.strokeStyle = 'rgba(10, 200, 185, 0.45)';
   ctx.lineWidth = 1;
   ctx.stroke();
-  ctx.fillStyle = '#7dd3fc';
+  ctx.fillStyle = '#73eae1';
   ctx.font = '700 13px system-ui, -apple-system, Segoe UI, sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText('PATCHDIFF SANDBOX · ZERO-VANGUARD MATH ENGINE', 68, 60);
+  ctx.fillText('PATCHDIFF SANDBOX · ZERO-VANGUARD MATH ENGINE', 120, 59);
 
   drawRoundedRect(ctx, width - 228, 38, 180, 34, 17);
   ctx.fillStyle = 'rgba(168, 85, 247, 0.2)';
@@ -287,12 +354,12 @@ export function downloadZeroDayCardPng(
   const kpiLine = `${t.zeroDayStatScanned}: ${radar.champions_scanned}   ·   ${t.zeroDayStatMyths}: ${radar.summary_counts.myths_busted}   ·   ${t.zeroDayStatHiddenWinners}: ${radar.summary_counts.hidden_winners}   ·   ${t.zeroDayStatHiddenLosers}: ${radar.summary_counts.hidden_losers}`;
   ctx.fillText(kpiLine, width / 2, 537);
 
-  ctx.fillStyle = '#64748b';
-  ctx.font = '500 12px system-ui, -apple-system, Segoe UI, sans-serif';
+  ctx.fillStyle = '#9eb3d1';
+  ctx.font = '600 12px system-ui, -apple-system, Segoe UI, sans-serif';
   ctx.fillText(
-    "PatchDiff Sandbox isn't endorsed by Riot Games · Riot Games is a trademark of Riot Games, Inc. · github.com/burakemrealp/PatchDiff_Sandbox",
+    "patchdiff-sandbox.pages.dev  ·  github.com/burakemrealp/PatchDiff_Sandbox  ·  PatchDiff Sandbox isn't endorsed by Riot Games",
     width / 2,
-    598
+    594
   );
 
   const safeVer = (radar.to_display_version || radar.to_version || 'patch').replace(/[^a-zA-Z0-9._-]/g, '_');

@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="PatchDiff Sandbox API",
     description="Semantic League of Legends patch note parser, deterministic combat simulator, and AI build & rune optimizer.",
-    version="2.0.0",
+    version="2.0.1",
     lifespan=lifespan,
 )
 
@@ -91,7 +91,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 def root():
     return {
         "service": "PatchDiff Sandbox API",
-        "version": "2.0.0",
+        "version": "2.0.1",
         "status": "online",
         "docs_url": "/docs",
         "llm_provider": settings.LLM_PROVIDER,

@@ -135,6 +135,20 @@
   --hextech-focus: #0b7285;
 }
 
+html,
+body {
+  overflow-x: hidden;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 .hextech-canvas {
   background-color: var(--color-slate-950);
   background-image: var(--hextech-glow);

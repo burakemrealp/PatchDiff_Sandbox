@@ -328,34 +328,49 @@ export default function App() {
   const headerPatchLabel = latestPatch?.display_version || latestPatch?.version;
 
   return (
-    <div className="min-h-screen hextech-canvas p-6 md:p-8">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <div className="min-h-screen hextech-canvas px-3.5 py-4 sm:p-6 md:p-8">
+      <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
         <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-800 pb-4">
-          <div className="flex items-center gap-3 min-w-0 flex-1">
-            <BrandCrest className="w-11 h-11 shrink-0 drop-shadow-md" />
-            <div className="min-w-0">
-              <h1 className="text-2xl font-bold tracking-tight text-white">PatchDiff Sandbox</h1>
-              <p className="text-xs text-slate-400 leading-snug">{t.appSubtitle}</p>
+          <div className="flex items-center justify-between gap-3 min-w-0 flex-1">
+            <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+              <BrandCrest className="w-9 h-9 sm:w-11 sm:h-11 shrink-0 drop-shadow-md" />
+              <div className="min-w-0">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white truncate">
+                  PatchDiff Sandbox
+                </h1>
+                <p className="hidden sm:block text-xs text-slate-400 leading-snug">
+                  {t.appSubtitle}
+                </p>
+              </div>
+            </div>
+            <div className="md:hidden shrink-0">
+              <HeaderActions />
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center md:justify-end gap-2 shrink-0">
-            {latestPatch && (
-              <span
-                title={`Riot API: ${latestPatch.version}`}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/35 whitespace-nowrap"
-              >
-                LoL {headerPatchLabel}
-              </span>
-            )}
-            {health && (
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/35 whitespace-nowrap">
-                <Activity className="w-3.5 h-3.5 shrink-0" />
-                {health.status === 'healthy' ? t.systemOnline : t.systemPartial}
-              </span>
-            )}
-            <LanguageSelector />
-            <HeaderActions />
+          <div className="flex flex-wrap items-center justify-between md:justify-end gap-2 w-full md:w-auto shrink-0">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              {latestPatch && (
+                <span
+                  title={`Riot API: ${latestPatch.version}`}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/35 whitespace-nowrap"
+                >
+                  LoL {headerPatchLabel}
+                </span>
+              )}
+              {health && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/35 whitespace-nowrap">
+                  <Activity className="w-3.5 h-3.5 shrink-0" />
+                  {health.status === 'healthy' ? t.systemOnline : t.systemPartial}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <LanguageSelector />
+              <div className="hidden md:block">
+                <HeaderActions />
+              </div>
+            </div>
           </div>
         </header>
 
@@ -530,12 +545,26 @@ export default function App() {
           </Suspense>
         )}
 
-        <footer className="mt-10 pt-4 border-t border-slate-800/80 text-center text-[11px] leading-relaxed text-slate-500">
-          PatchDiff Sandbox isn&apos;t endorsed by Riot Games and doesn&apos;t
-          reflect the views or opinions of Riot Games or anyone officially
-          involved in producing or managing Riot Games properties. Riot Games,
-          and all associated properties are trademarks or registered trademarks
-          of Riot Games, Inc.
+        <footer className="mt-8 sm:mt-10 pt-4 border-t border-slate-800/80 text-center space-y-1.5 text-[11px] leading-relaxed text-slate-500">
+          <div className="font-mono text-slate-400">
+            PatchDiff Sandbox <span className="text-cyan-400 font-semibold">v2.0.1</span> · Open
+            Source (MIT) ·{' '}
+            <a
+              href="https://github.com/burakemrealp/PatchDiff_Sandbox"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-cyan-300 underline-offset-4 hover:underline"
+            >
+              GitHub
+            </a>
+          </div>
+          <p>
+            PatchDiff Sandbox isn&apos;t endorsed by Riot Games and doesn&apos;t
+            reflect the views or opinions of Riot Games or anyone officially
+            involved in producing or managing Riot Games properties. Riot Games,
+            and all associated properties are trademarks or registered trademarks
+            of Riot Games, Inc.
+          </p>
         </footer>
       </div>
     </div>

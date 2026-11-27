@@ -61,7 +61,7 @@ export function DiffCardList({
   };
 
   return (
-    <section className="rounded-xl bg-slate-900 border border-slate-800 p-5 space-y-4">
+    <section className="rounded-xl bg-slate-900 border border-slate-800 p-3.5 sm:p-5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex items-center gap-2">
@@ -84,7 +84,7 @@ export function DiffCardList({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex overflow-x-auto no-scrollbar sm:flex-wrap items-center gap-2 w-full sm:w-auto pb-1 sm:pb-0">
           {champions.map((c) => {
             const isSelected = c.champion_key === activeChamp.champion_key;
             return (
@@ -92,7 +92,7 @@ export function DiffCardList({
                 key={c.champion_key}
                 type="button"
                 onClick={() => onSelectChampion(c.champion_key)}
-                className={`px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                className={`shrink-0 px-3 py-1 rounded-lg text-xs font-semibold border transition cursor-pointer ${
                   isSelected
                     ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
                     : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-slate-200'
@@ -164,7 +164,7 @@ export function DiffCardList({
               {renderDirectionBadge(ab.direction)}
             </div>
 
-            <div className="space-y-1.5 font-mono text-xs text-slate-300 ps-8">
+            <div className="space-y-1.5 font-mono text-xs text-slate-300 ps-0 sm:ps-8 break-words">
               {ab.old_base_damage && ab.new_base_damage && (
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="text-slate-400 font-sans">{t.baseDamageLabel}</span>

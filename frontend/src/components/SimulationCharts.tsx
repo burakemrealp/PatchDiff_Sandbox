@@ -38,7 +38,7 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
   ];
 
   return (
-    <section className="rounded-xl bg-slate-900 border border-slate-800 p-5 space-y-6">
+    <section className="rounded-xl bg-slate-900 border border-slate-800 p-3.5 sm:p-5 space-y-5 sm:space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="w-5 h-5 text-cyan-400" />
@@ -160,7 +160,7 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
         </button>
       </div>
 
-      <div className="h-80 w-full bg-slate-950 rounded-lg border border-slate-800 p-4" dir="ltr">
+      <div className="h-64 sm:h-80 w-full bg-slate-950 rounded-lg border border-slate-800 p-2.5 sm:p-4" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={result.level_curves} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke={isLight ? '#cbd5e1' : '#1e3557'} />
@@ -263,21 +263,21 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
 
       <div className="overflow-x-auto rounded-lg border border-slate-800">
         <table className="w-full text-start text-xs">
-          <thead className="bg-slate-950 text-slate-400 uppercase">
+          <thead className="bg-slate-950 text-slate-400 uppercase whitespace-nowrap">
             <tr>
-              <th className="px-4 py-3">{t.colPhase}</th>
-              <th className="px-4 py-3">{t.colTargetHp}</th>
-              <th className="px-4 py-3">{t.colBurst}</th>
-              <th className="px-4 py-3">{t.colDps}</th>
-              <th className="px-4 py-3">{t.colTtk}</th>
+              <th className="px-2.5 py-2.5 sm:px-4 sm:py-3">{t.colPhase}</th>
+              <th className="px-2.5 py-2.5 sm:px-4 sm:py-3">{t.colTargetHp}</th>
+              <th className="px-2.5 py-2.5 sm:px-4 sm:py-3">{t.colBurst}</th>
+              <th className="px-2.5 py-2.5 sm:px-4 sm:py-3">{t.colDps}</th>
+              <th className="px-2.5 py-2.5 sm:px-4 sm:py-3">{t.colTtk}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800 font-mono">
+          <tbody className="divide-y divide-slate-800 font-mono whitespace-nowrap">
             {phaseRows.map(({ label, data }) => (
               <tr key={label} className="bg-slate-900/60 hover:bg-slate-800/40">
-                <td className="px-4 py-3 font-sans font-medium text-white">{label}</td>
-                <td className="px-4 py-3 text-amber-300">{data.target_hp} HP</td>
-                <td className="px-4 py-3">
+                <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 font-sans font-medium text-white">{label}</td>
+                <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 text-amber-300">{data.target_hp} HP</td>
+                <td className="px-2.5 py-2.5 sm:px-4 sm:py-3">
                   <span className="text-slate-400">{data.old_burst}</span> →{' '}
                   <span className="text-emerald-400 font-semibold">{data.new_burst}</span>{' '}
                   <span className="text-slate-500">
@@ -285,7 +285,7 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
                     {data.burst_delta_pct}%)
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2.5 py-2.5 sm:px-4 sm:py-3">
                   <span className="text-slate-400">{data.old_dps}</span> →{' '}
                   <span className="text-cyan-400 font-semibold">{data.new_dps}</span>{' '}
                   <span className="text-slate-500">
@@ -293,7 +293,7 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
                     {data.dps_delta_pct}%)
                   </span>
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-2.5 py-2.5 sm:px-4 sm:py-3">
                   <span className="text-slate-400">
                     {data.old_ttk_sec}
                     {t.metricSecUnit}
