@@ -2,13 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PatchDiff Sandbox — Smart LoL Builds, Day-0 Patch Radar &amp; Damage Simulator</title>
     <meta
       name="description"
-      content="Automatic League of Legends patch diff engine, deterministic Level 1-20 combat simulator, and AI build & full rune page optimizer."
+      content="Outsmart every League of Legends patch with Day-0 hidden meta detection, official ARAM balance modifiers, behind/ahead dynamic item pivots, 9-slot runes, and Level 1-20 combat math."
     />
-    <title>PatchDiff Sandbox — LoL Patch Simulator & AI Build Lab</title>
+    <meta name="theme-color" content="#091428" />
+    <link rel="canonical" href="https://patchdiff-sandbox.pages.dev/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+    <!-- OpenGraph / Discord / Reddit / WhatsApp Preview -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PatchDiff Sandbox" />
+    <meta
+      property="og:title"
+      content="PatchDiff Sandbox — Outsmart Every League of Legends Patch"
+    />
+    <meta
+      property="og:description"
+      content="Smart builds &amp; 9-slot runes that adapt when you're ahead or behind, Day-0 Patch Mythbuster radar, official ARAM modifiers &amp; Lv 1-20 damage math. 100% free &amp; Zero-Vanguard."
+    />
+    <meta property="og:url" content="https://patchdiff-sandbox.pages.dev/" />
+    <meta property="og:image" content="https://patchdiff-sandbox.pages.dev/og-banner.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="PatchDiff Sandbox — Smart Builds, Day-0 Patch Radar &amp; Combat Math for Every LoL Player"
+    />
+
+    <!-- X / Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="PatchDiff Sandbox — Outsmart Every League of Legends Patch"
+    />
+    <meta
+      name="twitter:description"
+      content="Smart builds &amp; 9-slot runes for every tempo, Day-0 Patch Radar, ARAM modifiers, and Lv 1-20 damage simulator across 25 LoL locales."
+    />
+    <meta name="twitter:image" content="https://patchdiff-sandbox.pages.dev/og-banner.png" />
+
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem('patchdiff_theme');
+          var mode =
+            saved === 'light' || saved === 'dark'
+              ? saved
+              : window.matchMedia('(prefers-color-scheme: light)').matches
+                ? 'light'
+                : 'dark';
+          document.documentElement.dataset.theme = mode;
+          document.documentElement.style.colorScheme = mode;
+        } catch (e) {
+          document.documentElement.dataset.theme = 'dark';
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PatchDiff Sandbox",
+        "url": "https://patchdiff-sandbox.pages.dev/",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Web",
+        "isAccessibleForFree": true,
+        "description": "Free, client-free League of Legends patch analysis engine, Level 1-20 combat and EHP simulator, Day-0 Meta Oracle, ARAM modifier lab, and AI build and 9-slot rune optimizer."
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

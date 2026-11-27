@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useState } from 'react';
-import { Activity, Brain, CloudDownload, FileText, Loader2, Sparkles, Swords } from 'lucide-react';
+import { Activity, Loader2 } from 'lucide-react';
 import { api } from './services/api';
 import { useLanguage } from './i18n/LanguageContext';
 import type {
@@ -21,9 +21,12 @@ import type {
   SimulateResponse,
 } from './types/api';
 import { AIBuildLab } from './components/AIBuildLab';
+import { BrandCrest } from './components/BrandCrest';
 import { DiffCardList } from './components/DiffCardList';
-import { SimulationControls } from './components/SimulationControls';
+import { FeatureShowcaseNav, type NavSourceMode } from './components/FeatureShowcaseNav';
+import { HeaderActions } from './components/HeaderActions';
 import { LanguageSelector } from './components/LanguageSelector';
+import { SimulationControls } from './components/SimulationControls';
 
 const ZeroDayRadarPanel = lazy(() =>
   import('./components/ZeroDayRadarPanel').then((m) => ({ default: m.ZeroDayRadarPanel }))
@@ -38,7 +41,7 @@ const SimulationCharts = lazy(() =>
   import('./components/SimulationCharts').then((m) => ({ default: m.SimulationCharts }))
 );
 
-type SourceMode = 'ai-lab' | 'zero-day' | 'auto' | 'manual';
+type SourceMode = NavSourceMode;
 
 interface AutoPatchBundle {
   latestRes: LatestPatchResponse;
@@ -325,33 +328,34 @@ export default function App() {
   const headerPatchLabel = latestPatch?.display_version || latestPatch?.version;
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-8">
+    <div className="min-h-screen hextech-canvas p-6 md:p-8">
       <div className="max-w-5xl mx-auto space-y-6">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-          <div className="flex items-center gap-3">
-            <Swords className="w-7 h-7 text-cyan-400" />
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">PatchDiff Sandbox</h1>
-              <p className="text-xs text-slate-400">{t.appSubtitle}</p>
+        <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-slate-800 pb-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <BrandCrest className="w-11 h-11 shrink-0 drop-shadow-md" />
+            <div className="min-w-0">
+              <h1 className="text-2xl font-bold tracking-tight text-white">PatchDiff Sandbox</h1>
+              <p className="text-xs text-slate-400 leading-snug">{t.appSubtitle}</p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center md:justify-end gap-2 shrink-0">
             {latestPatch && (
               <span
                 title={`Riot API: ${latestPatch.version}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/15 text-cyan-300 border border-cyan-500/35 whitespace-nowrap"
               >
                 LoL {headerPatchLabel}
               </span>
             )}
             {health && (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
-                <Activity className="w-3.5 h-3.5" />
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/35 whitespace-nowrap">
+                <Activity className="w-3.5 h-3.5 shrink-0" />
                 {health.status === 'healthy' ? t.systemOnline : t.systemPartial}
               </span>
             )}
             <LanguageSelector />
+            <HeaderActions />
           </div>
         </header>
 
@@ -361,52 +365,7 @@ export default function App() {
           </div>
         )}
 
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('ai-lab')}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-              sourceMode === 'ai-lab'
-                ? 'bg-purple-500/20 text-purple-200 border-purple-500/60'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-            }`}
-          >
-            <Brain className="w-3.5 h-3.5" /> {t.tabAiLab}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('zero-day')}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-              sourceMode === 'zero-day'
-                ? 'bg-amber-500/20 text-amber-200 border-amber-500/60'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" /> {t.tabZeroDay}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('auto')}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-              sourceMode === 'auto'
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-            }`}
-          >
-            <CloudDownload className="w-3.5 h-3.5" /> {t.tabPatchStats}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleSwitchMode('manual')}
-            className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold border transition cursor-pointer ${
-              sourceMode === 'manual'
-                ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50'
-                : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
-            }`}
-          >
-            <FileText className="w-3.5 h-3.5" /> {t.tabManualInput}
-          </button>
-        </div>
+        <FeatureShowcaseNav activeMode={sourceMode} onSelectMode={handleSwitchMode} />
 
         {sourceMode === 'ai-lab' && (
           <AIBuildLab

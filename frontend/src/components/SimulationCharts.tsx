@@ -12,6 +12,7 @@ import {
 import { BarChart3, Clock, Flame, Zap } from 'lucide-react';
 import type { SimulateResponse } from '../types/api';
 import { useLanguage } from '../i18n/LanguageContext';
+import { useTheme } from '../theme/ThemeContext';
 import { AramModifiersBar } from './AramModifiersBar';
 
 interface SimulationChartsProps {
@@ -22,6 +23,8 @@ type ChartTab = 'burst' | 'dps' | 'ttk';
 
 export function SimulationCharts({ simResponse }: SimulationChartsProps) {
   const { t } = useLanguage();
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
   const [activeTab, setActiveTab] = useState<ChartTab>('burst');
   const { result, cached } = simResponse;
 
@@ -160,18 +163,19 @@ export function SimulationCharts({ simResponse }: SimulationChartsProps) {
       <div className="h-80 w-full bg-slate-950 rounded-lg border border-slate-800 p-4" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={result.level_curves} margin={{ top: 10, right: 20, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+            <CartesianGrid strokeDasharray="3 3" stroke={isLight ? '#cbd5e1' : '#1e3557'} />
             <XAxis
               dataKey="level"
-              stroke="#94a3b8"
+              stroke={isLight ? '#334155' : '#9eb3d1'}
               tick={{ fontSize: 12 }}
               tickFormatter={(lvl) => `${t.levelShort} ${lvl}`}
             />
-            <YAxis stroke="#94a3b8" tick={{ fontSize: 12 }} />
+            <YAxis stroke={isLight ? '#334155' : '#9eb3d1'} tick={{ fontSize: 12 }} />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#0f172a',
-                borderColor: '#334155',
+                backgroundColor: isLight ? '#ffffff' : '#10203a',
+                borderColor: isLight ? '#b5c4dc' : '#2c4a75',
+                color: isLight ? '#0a1628' : '#eef2f8',
                 borderRadius: '0.5rem',
                 fontSize: '12px',
               }}

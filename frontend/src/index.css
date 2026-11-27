@@ -1,1 +1,172 @@
 @import "tailwindcss";
+
+/*
+ * PatchDiff Sandbox — Hextech Dual-Theme System (Dark: Hextech Twilight, Light: Piltover Daylight)
+ * Tuned for EU accessibility (EN 301 549 / WCAG 2.1 AA >= 4.5:1 contrast & clear keyboard focus rings).
+ */
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Hextech Twilight Navy Surfaces */
+  --color-slate-950: #091428;
+  --color-slate-900: #10203a;
+  --color-slate-800: #1e3557;
+  --color-slate-700: #2c4a75;
+  --color-slate-600: #416596;
+
+  /* Tinted Container Surfaces */
+  --color-cyan-950: #0a2a38;
+  --color-emerald-950: #0a2c24;
+  --color-amber-950: #2b210e;
+  --color-purple-950: #1f173c;
+  --color-rose-950: #331320;
+  --color-indigo-950: #141c3c;
+
+  /* Warm Runeterra Ivory & Silver Ink */
+  --color-white: #f8f5ec;
+  --color-slate-50: #f6f3ea;
+  --color-slate-100: #eef2f8;
+  --color-slate-200: #dce5f2;
+  --color-slate-300: #c3d1e6;
+  --color-slate-400: #9eb3d1;
+  --color-slate-500: #859cbe;
+
+  /* Hextech Gold (amber), Hextech Teal (cyan), Arcane Violet (purple) */
+  --color-amber-500: #c89b3c;
+  --color-amber-400: #e0b75e;
+  --color-amber-300: #eed18a;
+  --color-amber-200: #f8e8be;
+
+  --color-cyan-500: #0ac8b9;
+  --color-cyan-400: #26dcd0;
+  --color-cyan-300: #73eae1;
+  --color-cyan-200: #b2f5ef;
+
+  --color-purple-500: #9b7bf7;
+  --color-purple-400: #b399fa;
+  --color-purple-300: #d1c2fe;
+  --color-purple-200: #e7dfff;
+
+  --color-emerald-500: #10b981;
+  --color-emerald-400: #34d399;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-200: #a7f3d0;
+
+  --color-rose-500: #f43f5e;
+  --color-rose-400: #fb7185;
+  --color-rose-300: #fda4af;
+
+  --hextech-glow: radial-gradient(
+      900px 420px at 14% -4%,
+      rgba(10, 200, 185, 0.14),
+      transparent 70%
+    ),
+    radial-gradient(
+      820px 380px at 88% -2%,
+      rgba(200, 155, 60, 0.13),
+      transparent 72%
+    );
+  --hextech-focus: #e0b75e;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  /* Piltover Daylight Pearl & Crisp Card Surfaces */
+  --color-slate-950: #f3f6fb;
+  --color-slate-900: #ffffff;
+  --color-slate-800: #d5dfee;
+  --color-slate-700: #b5c4dc;
+  --color-slate-600: #899ebe;
+
+  /* Soft Daylight Tinted Containers */
+  --color-cyan-950: #e0f5f3;
+  --color-emerald-950: #e0f6ec;
+  --color-amber-950: #fcf3db;
+  --color-purple-950: #eeeafd;
+  --color-rose-950: #fce6ea;
+  --color-indigo-950: #e8edfb;
+
+  /* Deep Sapphire Ink (>= 4.8:1 Contrast) */
+  --color-white: #0a1628;
+  --color-slate-50: #0a1628;
+  --color-slate-100: #0f2038;
+  --color-slate-200: #1b304f;
+  --color-slate-300: #2b4366;
+  --color-slate-400: #455c7e;
+  --color-slate-500: #556c8d;
+
+  /* WCAG 2.1 AA Daylight Hextech Accents */
+  --color-amber-500: #9a6300;
+  --color-amber-400: #875500;
+  --color-amber-300: #6f4600;
+  --color-amber-200: #563600;
+
+  --color-cyan-500: #0b7285;
+  --color-cyan-400: #0b6d7f;
+  --color-cyan-300: #085766;
+  --color-cyan-200: #064450;
+
+  --color-purple-500: #573bd4;
+  --color-purple-400: #4f35c4;
+  --color-purple-300: #4129a8;
+  --color-purple-200: #331f88;
+
+  --color-emerald-500: #087f5b;
+  --color-emerald-400: #077453;
+  --color-emerald-300: #065d43;
+  --color-emerald-200: #044934;
+
+  --color-rose-500: #c92a42;
+  --color-rose-400: #b81d36;
+  --color-rose-300: #98152b;
+
+  --hextech-glow: radial-gradient(
+      900px 420px at 14% -4%,
+      rgba(11, 114, 133, 0.08),
+      transparent 70%
+    ),
+    radial-gradient(
+      820px 380px at 88% -2%,
+      rgba(154, 99, 0, 0.08),
+      transparent 72%
+    );
+  --hextech-focus: #0b7285;
+}
+
+.hextech-canvas {
+  background-color: var(--color-slate-950);
+  background-image: var(--hextech-glow);
+  color: var(--color-slate-100);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+
+:root[data-theme="light"] .text-white {
+  color: #0a1628;
+}
+
+:root[data-theme="light"] .shadow-black\/60 {
+  --tw-shadow-color: rgba(15, 32, 56, 0.16);
+}
+
+/* EU EN 301 549 / WCAG 2.1 AA Keyboard Focus Indicator */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--hextech-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
