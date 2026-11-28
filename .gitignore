@@ -5,9 +5,11 @@
 *.pem
 *.key
 
-# Local Documents & Notes
+# Local Documents, Notes & Social Media Assets
 *.docx
 *.xlsx
+social-media/
+social-media/**
 
 # Python & Backend
 __pycache__/
